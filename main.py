@@ -1,12 +1,13 @@
 import numpy as np
 import random
+import math
 
 # parameters
 input_size = 2
 hidden_size = 2
 output_size = 1
-
 init_weight_range = 0.2
+beta = 2.0
 
 # input layer: x
 # hidden layer: y
@@ -14,6 +15,8 @@ init_weight_range = 0.2
 x = np.zeros(input_size)
 y = np.zeros(hidden_size)
 z = np.zeros(output_size)
+
+x = [1, 0]
 
 # weights
 w = np.zeros((input_size, hidden_size))     # input to hidden
@@ -33,4 +36,15 @@ def forward_computation():
         u = 0
         for j in range(input_size):
             u += w[j, i] * x[i]
-        #y[]
+        y[i] = 1 / (1 + math.exp(-beta * u))
+
+    for i in range(output_size):
+        s = 0
+        for j in range(hidden_size):
+            s += v[j, i] * y[i]
+        z[i] = 1 / (1 + math.exp(-beta * s))
+
+init_weights()
+forward_computation()
+print(y)
+print(z)

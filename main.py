@@ -9,14 +9,21 @@ output_size = 1
 init_weight_range = 0.2
 beta = 2.0
 
+# data
+# (x1, x2) -> y
+r = 3.0
+def data(x1, x2):
+    z2 = r * r - x1 * x1 - x2 * x2
+    if z2 < 0:
+        print("Error: out of bounds")
+    return math.sqrt(r * r - x1 * x1 - x2 * x2)
+
 # input layer: x
 # hidden layer: y
 # output layer: z
 x = np.zeros(input_size)
 y = np.zeros(hidden_size)
 z = np.zeros(output_size)
-
-x = [1, 0]
 
 # weights
 w = np.zeros((input_size, hidden_size))     # input to hidden
@@ -44,7 +51,12 @@ def forward_computation():
             s += v[j, i] * y[i]
         z[i] = 1 / (1 + math.exp(-beta * s))
 
+#def back_propagate():
+    
+
 init_weights()
 forward_computation()
 print(y)
 print(z)
+
+print(data(1.5, 2))

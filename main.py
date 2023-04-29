@@ -20,17 +20,17 @@ w = np.zeros((input_size, hidden_size))     # input to hidden
 v = np.zeros((hidden_size, output_size))    # hidden to output
 
 def init_weights():
-    for i in range(input_size):
-        for j in range(hidden_size):
-            w[i, j] = random.uniform(-init_weight_range/2, init_weight_range/2)
-
     for i in range(hidden_size):
-        for j in range(output_size):
-            v[i, j] = random.uniform(-init_weight_range/2, init_weight_range/2)
+        for j in range(input_size):
+            w[j, i] = random.uniform(-init_weight_range/2, init_weight_range/2)
 
-# def forward_computation():
-#     u = 
+    for i in range(output_size):
+        for j in range(hidden_size):
+            v[j, i] = random.uniform(-init_weight_range/2, init_weight_range/2)
 
-init_weights()
-print(w)
-print(v)
+def forward_computation():
+    for i in range(hidden_size):
+        u = 0
+        for j in range(input_size):
+            u += w[j, i] * x[i]
+        #y[]

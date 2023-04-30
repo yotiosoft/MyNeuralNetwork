@@ -8,7 +8,7 @@ hidden_size = 2
 output_size = 1
 init_weight_range = 0.2
 beta = 2.0
-eta = 0.1
+eta = 1
 
 # data
 # (x1, x2) -> y
@@ -75,20 +75,28 @@ def back_propagate():
             for k in range(output_size):
                 v[k, j] += eta * (t[k] - z[k]) * (z[k] * (1 - z[k])) * y[j]
     
+    err_total = 0
     for i in range(len(samples_x)):
         z = forward_computation(samples_x[n])
         t = data(samples_x[n][0], samples_x[n][1])
+
+        for k in range(output_size):
+            err_total += t[k] - z[k]
+
         for i in range(input_size):
             for j in range(hidden_size):
                 s = 0
                 for k in range(output_size):
                     s += v[k, j] * (t[k] - z[k]) * (z[k] * (1 - z[k]))
                 w[j, i] += eta * s * (y[j] * (1 - y[j])) * samples_x[n][i]
-
+    return err_total
 
 init_weights()
 make_sample_data(10)
-back_propagate()
 
-print(v)
-print(w)
+for i in range(10000):
+    err_total = back_propagate()
+    print("v = " + str(v))
+    print("w = " + str(w))
+    print("err total: " + str(err_total))
+

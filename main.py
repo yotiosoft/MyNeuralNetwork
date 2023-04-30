@@ -12,16 +12,14 @@ beta = 2.0
 # data
 # (x1, x2) -> y
 r = 3.0
-data_min_x1 = -3
-data_min_x2 = -3
-data_max_x1 = 3
-data_max_x2 = 3
+data_min_x1 = -30
+data_min_x2 = -30
+data_max_x1 = 30
+data_max_x2 = 30
+sigma = 1
 def data(x1, x2):
-    z2 = r * r - x1 * x1 - x2 * x2
-    if z2 < 0:
-        print("Error: out of sphere")
-        return 0
-    return math.sqrt(r * r - x1 * x1 - x2 * x2)
+    z = 1/(2 * math.pi * sigma) * math.exp(-(x1 * x1 + x2 * x2) / 2 * sigma * sigma)
+    return z
 
 # input layer: x
 # hidden layer: y

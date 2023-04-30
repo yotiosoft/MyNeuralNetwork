@@ -8,7 +8,7 @@ hidden_size = 2
 output_size = 1
 init_weight_range = 0.2
 beta = 2.0
-eta = 1
+eta = 0.5
 
 # data
 # (x1, x2) -> y
@@ -92,9 +92,9 @@ def back_propagate():
     return err_total
 
 init_weights()
-make_sample_data(10)
+make_sample_data(1000)
 
-for i in range(10000):
+for i in range(1000):
     err_total = back_propagate()
     print("v = " + str(v))
     print("w = " + str(w))

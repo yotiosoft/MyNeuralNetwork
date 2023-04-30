@@ -57,24 +57,38 @@ def forward_computation(x):
         u = 0
         for j in range(hidden_size):
             u += w[j, i] * x[i]
-        y[j] = 1 / (1 + math.exp(-beta * u))
+        y[j] = 1 / (1 + math.exp(-beta * u))    # u
 
     for i in range(hidden_size):
         s = 0
         for j in range(output_size):
             s += v[j, i] * y[i]
-        z[j] = 1 / (1 + math.exp(-beta * s))
+        z[j] = 1 / (1 + math.exp(-beta * s))    # s
 
     return z
 
 def back_propagate():
-    for i in range(len(samples_x)):
-        z = forward_computation(samples_x[i])
-        t = data(samples_x[i][0], samples_x[i][1])
+    for n in range(len(samples_x)):
+        z = forward_computation(samples_x[n])
+        t = data(samples_x[n][0], samples_x[n][1])
         for j in range(hidden_size):
             for k in range(output_size):
                 v[k, j] += eta * (t[k] - z[k]) * (z[k] * (1 - z[k])) * y[j]
+    
+    for i in range(len(samples_x)):
+        z = forward_computation(samples_x[n])
+        t = data(samples_x[n][0], samples_x[n][1])
+        for i in range(input_size):
+            for j in range(hidden_size):
+                s = 0
+                for k in range(output_size):
+                    s += v[k, j] * (t[k] - z[k]) * (z[k] * (1 - z[k]))
+                w[j, i] += eta * s * (y[j] * (1 - y[j])) * samples_x[n][i]
+
 
 init_weights()
 make_sample_data(10)
 back_propagate()
+
+print(v)
+print(w)

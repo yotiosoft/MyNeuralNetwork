@@ -7,11 +7,11 @@ import copy
 
 # parameters
 input_size = 2 + 1
-hidden_size = 5
+hidden_size = 5 + 1
 output_size = 1
 init_weight_range = 0.01
 beta = 0.2
-eta = 0.5
+eta = 1.0
 
 # data
 # (x1, x2) -> y
@@ -60,11 +60,12 @@ def forward_computation(X):
     y = np.zeros(hidden_size)
     z = np.zeros(output_size)
 
-    for j in range(hidden_size):
+    for j in range(hidden_size-1):
         u = 0
         for i in range(input_size):
             u += w[j, i] * X[i]
         y[j] = 1 / (1 + math.exp(-beta * u))    # u
+    y[hidden_size-1] = 1    # bias
 
     for k in range(output_size):
         s = 0

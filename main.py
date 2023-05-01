@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 input_size = 2
 hidden_size = 2
 output_size = 1
-init_weight_range = 0.2
+init_weight_range = 0.01
 beta = 2.0
 eta = 0.5
 
@@ -64,11 +64,11 @@ def forward_computation(X):
             u += w[j, i] * X[i]
         Y[j] = 1 / (1 + math.exp(-beta * u))    # u
 
-    for i in range(hidden_size):
+    for k in range(output_size):
         s = 0
-        for j in range(output_size):
-            s += v[j, i] * Y[i]
-        Z[j] = 1 / (1 + math.exp(-beta * s))    # s
+        for j in range(hidden_size):
+            s += v[k, j] * Y[i]
+        Z[k] = 1 / (1 + math.exp(-beta * s))    # s
 
     return Z
 
@@ -100,7 +100,8 @@ init_weights()
 samples_x, samples_y = make_sample_data(1000)
 
 # train
-for i in range(10):
+for i in range(100):
+    print("Epoch " + str(i))
     err_total = back_propagate(samples_x, samples_y)
     print("v = " + str(v))
     print("w = " + str(w))
@@ -110,19 +111,33 @@ print("train done.")
 # test
 test_data_x, test_data_y = make_sample_data(1000)
 test_err_total = 0
+test_predicted = []
 for n in range(len(test_data_x)):
     predict = forward_computation(test_data_x[n])
+    test_predicted.append(predict)
     test_err_total += test_data_y[n] - predict
+    print(predict)
 print("error rate: " + str(test_err_total))
 
 # show figures
-plot_sample_x1 = [x[0] for x in samples_x]
-plot_sample_x2 = [x[1] for x in samples_x]
-plot_sample_y = [y for y in samples_y]
+plot_train_x1 = [x[0] for x in samples_x]
+plot_train_x2 = [x[1] for x in samples_x]
+plot_train_y = [y for y in samples_y]
+
+plot_test_x1 = [x[0] for x in test_data_x]
+plot_test_x2 = [x[1] for x in test_data_x]
+plot_test_y = [y for y in test_data_y]
+plot_test_predicted = [p[0] for p in test_predicted]
+print(test_predicted)
+print(plot_test_predicted)
 
 fig1 = plt.figure()
 ax1 = fig1.add_subplot(projection='3d')
-ax1.scatter(plot_sample_x1, plot_sample_x2, plot_sample_y, color='blue')
+ax1.scatter(plot_train_x1, plot_train_x2, plot_train_y, color='blue')
+
+fig2 = plt.figure()
+ax2 = fig2.add_subplot(projection='3d')
+ax2.scatter(plot_test_x1, plot_test_x2, plot_test_predicted, color='green')
 
 plt.show()
 

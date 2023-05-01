@@ -15,19 +15,21 @@ eta = 0.5
 # data
 # (x1, x2) -> y
 r = 3.0
-data_min_x1 = -30
-data_min_x2 = -30
-data_max_x1 = 30
-data_max_x2 = 30
+data_min_x1 = -2
+data_min_x2 = -2
+data_max_x1 = 2
+data_max_x2 = 2
 
 mu = np.matrix([0, 0])
-sig = np.matrix([[1,0.3],[0.3,1]])
+sig = np.matrix([[1,0.01],[0.01,1]])
 
 def data(x1, x2):
     datx = np.matrix([x1, x2])
     a = np.sqrt(np.linalg.det(sig)*(2*np.pi)**sig.ndim)
     b = np.linalg.det(-0.5*(datx-mu)*sig.I*(datx-mu).T)
     return [np.exp(b)/a]
+
+print(data(0, 0))
 
 # input layer: x
 # hidden layer: y
@@ -46,7 +48,7 @@ def make_sample_data(sample_n):
     for i in range(sample_n):
         sample_x1 = random.uniform(data_min_x1, data_max_x1)
         sample_x2 = random.uniform(data_min_x2, data_max_x2)
-        sample_y = data(random.uniform(data_min_x1, data_max_x1), random.uniform(data_min_x2, data_max_x2))[0]
+        sample_y = data(sample_x1, sample_x2)
         samples_x.append([sample_x1, sample_x2])
         samples_y.append(sample_y)
 
@@ -110,7 +112,10 @@ for i in range(10):
 # show figures
 plot_sample_x1 = [x[0] for x in samples_x]
 plot_sample_x2 = [x[1] for x in samples_x]
+print(plot_sample_x1[0])
+print(plot_sample_x2[0])
 plot_sample_y = [y for y in samples_y]
+print(plot_sample_y[0])
 
 fig1 = plt.figure()
 ax1 = fig1.add_subplot(projection='3d')

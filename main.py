@@ -3,6 +3,7 @@ import random
 import math
 from scipy.stats import mvn
 import matplotlib.pyplot as plt
+import copy
 
 # parameters
 input_size = 2
@@ -114,9 +115,8 @@ test_err_total = 0
 test_predicted = []
 for n in range(len(test_data_x)):
     predict = forward_computation(test_data_x[n])
-    test_predicted.append(predict)
+    test_predicted.append(copy.deepcopy(predict))
     test_err_total += test_data_y[n] - predict
-    print(predict)
 print("error rate: " + str(test_err_total))
 
 # show figures

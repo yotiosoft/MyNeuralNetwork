@@ -104,7 +104,7 @@ def back_propagate(_samples_x, samples_y):
     return err_total
 
 init_weights()
-samples_x, samples_y = make_sample_data(1000)
+samples_x, samples_y = make_sample_data(10000)
 
 # train
 for i in range(1000):

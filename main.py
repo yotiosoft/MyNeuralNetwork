@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import math
+from scipy.stats import mvn
 import matplotlib.pyplot as plt
 
 # parameters
@@ -18,11 +19,15 @@ data_min_x1 = -30
 data_min_x2 = -30
 data_max_x1 = 30
 data_max_x2 = 30
-sigma = 0.1
+
+mu = np.matrix([0, 0])
+sig = np.matrix([[1,0.3],[0.3,1]])
 
 def data(x1, x2):
-    z = 1/(2 * math.pi * sigma) * math.exp(-(x1 * x1 + x2 * x2) / 2 * sigma * sigma)
-    return [z]
+    datx = np.matrix([x1, x2])
+    a = np.sqrt(np.linalg.det(sig)*(2*np.pi)**sig.ndim)
+    b = np.linalg.det(-0.5*(datx-mu)*sig.I*(datx-mu).T)
+    return [np.exp(b)/a]
 
 # input layer: x
 # hidden layer: y

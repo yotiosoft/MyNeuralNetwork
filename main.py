@@ -86,7 +86,7 @@ def back_propagate(samples_x, samples_y):
         t = data(samples_x[n][0], samples_x[n][1])
 
         for k in range(output_size):
-            err_total += t[k] - Z[k]
+            err_total += (t[k] - Z[k])
 
         for i in range(input_size):
             for j in range(hidden_size):
@@ -108,7 +108,12 @@ for i in range(10):
 print("train done.")
 
 # test
-#test_data_x, test_data_y = make_sample_data(1000)
+test_data_x, test_data_y = make_sample_data(1000)
+test_err_total = 0
+for n in range(len(test_data_x)):
+    predict = forward_computation(test_data_x[n])
+    test_err_total += test_data_y[n] - predict
+print("error rate: " + str(test_err_total))
 
 # show figures
 plot_sample_x1 = [x[0] for x in samples_x]

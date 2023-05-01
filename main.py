@@ -11,7 +11,7 @@ hidden_size = 5 + 1
 output_size = 1
 init_weight_range = 0.01
 beta = 0.2
-eta = 1.0
+eta = 1.5
 
 # data
 # (x1, x2) -> y
@@ -39,9 +39,11 @@ v = np.zeros((output_size, hidden_size))    # hidden to output
 # sample data
 def make_sample_data(sample_n):
     ret_x, ret_y = [], []
+    samples_x1 = random.sample(range(data_min_x1, data_max_x1), k=sample_n)
+    samples_x2 = random.sample(range(data_min_x2, data_max_x2), k=sample_n)
     for i in range(sample_n):
-        sample_x1 = random.uniform(data_min_x1, data_max_x1)
-        sample_x2 = random.uniform(data_min_x2, data_max_x2)
+        sample_x1 = samples_x1[i]
+        sample_x2 = samples_x2[i]
         sample_y = data(sample_x1, sample_x2)
         ret_x.append([sample_x1, sample_x2])
         ret_y.append(sample_y)
@@ -75,11 +77,7 @@ def forward_computation(X):
 
     return z, y
 
-def back_propagate(_samples_x, samples_y):
-    samples_x = []
-    for n in range(len(_samples_x)):
-        samples_x.append([1, _samples_x[n][0], _samples_x[n][1]])
-
+def back_propagate(samples_x, samples_y):
     for n in range(len(samples_x)):
         z, y = forward_computation(samples_x[n])
         t = samples_y[n]
@@ -104,26 +102,28 @@ def back_propagate(_samples_x, samples_y):
     return err_total
 
 init_weights()
-samples_x, samples_y = make_sample_data(10000)
+samples_x, samples_y = make_sample_data(2000)
+train_x = [[1, x[0], x[1]] for x in samples_x[:1000]]
+train_y = samples_y[:1000]
+test_x = [[1, x[0], x[1]] for x in samples_x[1000:]]
+test_y = samples_y[1000:]
 
 # train
 for i in range(1000):
     print("Epoch " + str(i))
-    err_total = back_propagate(samples_x, samples_y)
+    err_total = back_propagate(train_x, train_y)
     print("v = " + str(v))
     print("w = " + str(w))
     print("err total: " + str(err_total))
 print("train done.")
 
 # test
-_test_data_x, test_data_y = make_sample_data(1000)
-test_data_x = [[1, x[0], x[1]] for x in _test_data_x]
 test_err_total = 0
 test_predicted = []
-for n in range(len(test_data_x)):
-    predict, _ = forward_computation(test_data_x[n])
+for n in range(len(test_x)):
+    predict, _ = forward_computation(test_x[n])
     test_predicted.append(copy.deepcopy(predict))
-    test_err_total += test_data_y[n] - predict
+    test_err_total += test_y[n] - predict
 print("error rate: " + str(test_err_total))
 
 # show figures
@@ -131,9 +131,9 @@ plot_train_x1 = [x[0] for x in samples_x]
 plot_train_x2 = [x[1] for x in samples_x]
 plot_train_y = [y for y in samples_y]
 
-plot_test_x1 = [x[1] for x in test_data_x]
-plot_test_x2 = [x[2] for x in test_data_x]
-plot_test_y = [y for y in test_data_y]
+plot_test_x1 = [x[1] for x in test_x]
+plot_test_x2 = [x[2] for x in test_x]
+plot_test_y = [y for y in test_y]
 plot_test_predicted = [p[0] for p in test_predicted]
 
 fig1 = plt.figure()

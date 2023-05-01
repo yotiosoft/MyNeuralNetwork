@@ -11,7 +11,7 @@ hidden_size = 5 + 1
 output_size = 1
 init_weight_range = 0.01
 beta = 0.2
-eta = 1.5
+eta = 0.5
 
 # data
 # (x1, x2) -> y
@@ -39,11 +39,9 @@ v = np.zeros((output_size, hidden_size))    # hidden to output
 # sample data
 def make_sample_data(sample_n):
     ret_x, ret_y = [], []
-    samples_x1 = random.sample(range(data_min_x1, data_max_x1), k=sample_n)
-    samples_x2 = random.sample(range(data_min_x2, data_max_x2), k=sample_n)
     for i in range(sample_n):
-        sample_x1 = samples_x1[i]
-        sample_x2 = samples_x2[i]
+        sample_x1 = random.uniform(data_min_x1, data_max_x1)
+        sample_x2 = random.uniform(data_min_x2, data_max_x2)
         sample_y = data(sample_x1, sample_x2)
         ret_x.append([sample_x1, sample_x2])
         ret_y.append(sample_y)
@@ -109,7 +107,7 @@ test_x = [[1, x[0], x[1]] for x in samples_x[1000:]]
 test_y = samples_y[1000:]
 
 # train
-for i in range(1000):
+for i in range(10000):
     print("Epoch " + str(i))
     err_total = back_propagate(train_x, train_y)
     print("v = " + str(v))
@@ -127,8 +125,8 @@ for n in range(len(test_x)):
 print("error rate: " + str(test_err_total))
 
 # show figures
-plot_train_x1 = [x[0] for x in samples_x]
-plot_train_x2 = [x[1] for x in samples_x]
+plot_train_x1 = [x[0] for x in train_x]
+plot_train_x2 = [x[1] for x in train_x]
 plot_train_y = [y for y in samples_y]
 
 plot_test_x1 = [x[1] for x in test_x]
@@ -145,4 +143,3 @@ ax2 = fig2.add_subplot(projection='3d')
 ax2.scatter(plot_test_x1, plot_test_x2, plot_test_predicted, color='green')
 
 plt.show()
-

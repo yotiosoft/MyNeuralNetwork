@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import copy
 
 # parameters
-input_size = 2
+input_size = 2 + 1
 hidden_size = 2
 output_size = 1
 init_weight_range = 0.01
@@ -69,12 +69,16 @@ def forward_computation(X):
     for k in range(output_size):
         s = 0
         for j in range(hidden_size):
-            s += v[k, j] * y[i]
+            s += v[k, j] * y[j]
         z[k] = 1 / (1 + math.exp(-beta * s))    # s
 
     return z, y
 
-def back_propagate(samples_x, samples_y):
+def back_propagate(_samples_x, samples_y):
+    samples_x = []
+    for n in range(len(_samples_x)):
+        samples_x.append([1, _samples_x[n][0], _samples_x[n][1]])
+
     for n in range(len(samples_x)):
         z, y = forward_computation(samples_x[n])
         t = samples_y[n]
@@ -111,7 +115,8 @@ for i in range(1000):
 print("train done.")
 
 # test
-test_data_x, test_data_y = make_sample_data(1000)
+_test_data_x, test_data_y = make_sample_data(1000)
+test_data_x = [[1, x[0], x[1]] for x in _test_data_x]
 test_err_total = 0
 test_predicted = []
 for n in range(len(test_data_x)):

@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import math
+import matplotlib.pyplot as plt
 
 # parameters
 input_size = 2
@@ -17,7 +18,8 @@ data_min_x1 = -30
 data_min_x2 = -30
 data_max_x1 = 30
 data_max_x2 = 30
-sigma = 1
+sigma = 0.1
+
 def data(x1, x2):
     z = 1/(2 * math.pi * sigma) * math.exp(-(x1 * x1 + x2 * x2) / 2 * sigma * sigma)
     return [z]
@@ -94,9 +96,20 @@ def back_propagate():
 init_weights()
 make_sample_data(1000)
 
-for i in range(1000):
+for i in range(10):
     err_total = back_propagate()
     print("v = " + str(v))
     print("w = " + str(w))
     print("err total: " + str(err_total))
+
+# show figures
+plot_sample_x1 = [x[0] for x in samples_x]
+plot_sample_x2 = [x[1] for x in samples_x]
+plot_sample_y = [y for y in samples_y]
+
+fig1 = plt.figure()
+ax1 = fig1.add_subplot(projection='3d')
+ax1.scatter(plot_sample_x1, plot_sample_x2, plot_sample_y, color='blue')
+
+plt.show()
 

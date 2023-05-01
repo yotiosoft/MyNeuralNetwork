@@ -7,10 +7,10 @@ import copy
 
 # parameters
 input_size = 2 + 1
-hidden_size = 2
+hidden_size = 5
 output_size = 1
 init_weight_range = 0.01
-beta = 2.0
+beta = 0.2
 eta = 0.5
 
 # data
@@ -60,9 +60,9 @@ def forward_computation(X):
     y = np.zeros(hidden_size)
     z = np.zeros(output_size)
 
-    for i in range(input_size):
+    for j in range(hidden_size):
         u = 0
-        for j in range(hidden_size):
+        for i in range(input_size):
             u += w[j, i] * X[i]
         y[j] = 1 / (1 + math.exp(-beta * u))    # u
 
@@ -84,7 +84,7 @@ def back_propagate(_samples_x, samples_y):
         t = samples_y[n]
         for j in range(hidden_size):
             for k in range(output_size):
-                v[k, j] += eta * (t[k] - z[k]) * (z[k] * (1 - z[k])) * y[j]
+                v[k, j] = v[k, j] + eta * (t[k] - z[k]) * (z[k] * (1 - z[k])) * y[j]
     
     err_total = 0
     for n in range(len(samples_x)):
@@ -99,7 +99,7 @@ def back_propagate(_samples_x, samples_y):
                 s = 0
                 for k in range(output_size):
                     s += v[k, j] * (t[k] - z[k]) * (z[k] * (1 - z[k]))
-                w[j, i] += eta * s * (y[j] * (1 - y[j])) * samples_x[n][i]
+                w[j, i] = w[j, i] + eta * s * (y[j] * (1 - y[j])) * samples_x[n][i]
     return err_total
 
 init_weights()
@@ -130,8 +130,8 @@ plot_train_x1 = [x[0] for x in samples_x]
 plot_train_x2 = [x[1] for x in samples_x]
 plot_train_y = [y for y in samples_y]
 
-plot_test_x1 = [x[0] for x in test_data_x]
-plot_test_x2 = [x[1] for x in test_data_x]
+plot_test_x1 = [x[1] for x in test_data_x]
+plot_test_x2 = [x[2] for x in test_data_x]
 plot_test_y = [y for y in test_data_y]
 plot_test_predicted = [p[0] for p in test_predicted]
 

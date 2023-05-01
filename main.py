@@ -56,52 +56,53 @@ def init_weights():
         for j in range(output_size):
             v[j, i] = random.uniform(-init_weight_range/2, init_weight_range/2)
 
-Y = np.zeros(hidden_size)
-Z = np.zeros(output_size)
 def forward_computation(X):
+    y = np.zeros(hidden_size)
+    z = np.zeros(output_size)
+
     for i in range(input_size):
         u = 0
         for j in range(hidden_size):
             u += w[j, i] * X[i]
-        Y[j] = 1 / (1 + math.exp(-beta * u))    # u
+        y[j] = 1 / (1 + math.exp(-beta * u))    # u
 
     for k in range(output_size):
         s = 0
         for j in range(hidden_size):
-            s += v[k, j] * Y[i]
-        Z[k] = 1 / (1 + math.exp(-beta * s))    # s
+            s += v[k, j] * y[i]
+        z[k] = 1 / (1 + math.exp(-beta * s))    # s
 
-    return Z
+    return z, y
 
 def back_propagate(samples_x, samples_y):
     for n in range(len(samples_x)):
-        z = forward_computation(samples_x[n])
-        t = data(samples_x[n][0], samples_x[n][1])
+        z, y = forward_computation(samples_x[n])
+        t = samples_y[n]
         for j in range(hidden_size):
             for k in range(output_size):
-                v[k, j] += eta * (t[k] - Z[k]) * (Z[k] * (1 - Z[k])) * Y[j]
+                v[k, j] += eta * (t[k] - z[k]) * (z[k] * (1 - z[k])) * y[j]
     
     err_total = 0
-    for i in range(len(samples_x)):
-        z = forward_computation(samples_x[n])
-        t = data(samples_x[n][0], samples_x[n][1])
+    for n in range(len(samples_x)):
+        z, y = forward_computation(samples_x[n])
+        t = samples_y[n]
 
         for k in range(output_size):
-            err_total += (t[k] - Z[k])
+            err_total += (t[k] - z[k])
 
         for i in range(input_size):
             for j in range(hidden_size):
                 s = 0
                 for k in range(output_size):
-                    s += v[k, j] * (t[k] - Z[k]) * (Z[k] * (1 - Z[k]))
-                w[j, i] += eta * s * (Y[j] * (1 - Y[j])) * samples_x[n][i]
+                    s += v[k, j] * (t[k] - z[k]) * (z[k] * (1 - z[k]))
+                w[j, i] += eta * s * (y[j] * (1 - y[j])) * samples_x[n][i]
     return err_total
 
 init_weights()
 samples_x, samples_y = make_sample_data(1000)
 
 # train
-for i in range(100):
+for i in range(1000):
     print("Epoch " + str(i))
     err_total = back_propagate(samples_x, samples_y)
     print("v = " + str(v))
@@ -114,7 +115,7 @@ test_data_x, test_data_y = make_sample_data(1000)
 test_err_total = 0
 test_predicted = []
 for n in range(len(test_data_x)):
-    predict = forward_computation(test_data_x[n])
+    predict, _ = forward_computation(test_data_x[n])
     test_predicted.append(copy.deepcopy(predict))
     test_err_total += test_data_y[n] - predict
 print("error rate: " + str(test_err_total))
@@ -128,8 +129,6 @@ plot_test_x1 = [x[0] for x in test_data_x]
 plot_test_x2 = [x[1] for x in test_data_x]
 plot_test_y = [y for y in test_data_y]
 plot_test_predicted = [p[0] for p in test_predicted]
-print(test_predicted)
-print(plot_test_predicted)
 
 fig1 = plt.figure()
 ax1 = fig1.add_subplot(projection='3d')

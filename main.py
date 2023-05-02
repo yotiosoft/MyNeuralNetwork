@@ -15,7 +15,6 @@ eta = 1.0
 
 # data
 # (x1, x2) -> y
-r = 3.0
 data_min_x1 = -2
 data_min_x2 = -2
 data_max_x1 = 2
@@ -131,7 +130,6 @@ plot_train_y = [y for y in train_y]
 
 plot_test_x1 = [x[1] for x in test_x]
 plot_test_x2 = [x[2] for x in test_x]
-plot_test_y = [y for y in test_y]
 plot_test_predicted = [p[0] for p in test_predicted]
 
 fig1 = plt.figure()

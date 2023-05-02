@@ -7,7 +7,7 @@ import copy
 
 # parameters
 input_size = 2 + 1
-hidden_size = 5 + 1
+hidden_size = 4 + 1
 output_size = 1
 init_weight_range = 0.01
 beta = 0.2

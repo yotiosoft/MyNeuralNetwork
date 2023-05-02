@@ -9,7 +9,7 @@ import copy
 input_size = 2 + 1
 hidden_size = 4 + 1
 output_size = 1
-init_weight_range = 0.01
+init_weight_range = 0.1
 beta = 0.2
 eta = 1.0
 
@@ -55,14 +55,14 @@ def init_weights():
         for j in range(output_size):
             v[j, i] = random.uniform(-init_weight_range/2, init_weight_range/2)
 
-def forward_computation(X):
+def forward_computation(x):
     y = np.zeros(hidden_size)
     z = np.zeros(output_size)
 
     for j in range(hidden_size-1):
         u = 0
         for i in range(input_size):
-            u += w[j, i] * X[i]
+            u += w[j, i] * x[i]
         y[j] = 1 / (1 + math.exp(-beta * u))    # u
     y[hidden_size-1] = 1    # bias
 
@@ -106,7 +106,7 @@ test_x = [[1, x[0], x[1]] for x in samples_x[1000:]]
 test_y = samples_y[1000:]
 
 # train
-for i in range(10000):
+for i in range(2000):
     print("Epoch " + str(i))
     err_total = back_propagate(train_x, train_y)
     print("v = " + str(v))

@@ -11,7 +11,7 @@ hidden_size = 5 + 1
 output_size = 1
 init_weight_range = 0.01
 beta = 0.2
-eta = 0.5
+eta = 1.0
 
 # data
 # (x1, x2) -> y

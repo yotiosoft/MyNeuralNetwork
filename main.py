@@ -29,6 +29,9 @@ def gauss(x1, x2):
     b = np.linalg.det(-0.5*(datx-mu)*sig.I*(datx-mu).T)
     return [np.exp(b)/a]
 
+def sin4pi(x1, x2):
+    return [(1 + np.sin(4*np.pi*x1)) * x2 / 2]
+
 # weights
 w = np.zeros((hidden_size, input_size))     # input to hidden
 v = np.zeros((output_size, hidden_size))    # hidden to output
@@ -39,7 +42,7 @@ def make_sample_data(sample_n):
     for i in range(sample_n):
         sample_x1 = random.uniform(data_min_x1, data_max_x1)
         sample_x2 = random.uniform(data_min_x2, data_max_x2)
-        sample_y = gauss(sample_x1, sample_x2)
+        sample_y = sin4pi(sample_x1, sample_x2)
         ret_x.append([sample_x1, sample_x2])
         ret_y.append(sample_y)
     return ret_x, ret_y

@@ -6,13 +6,14 @@ import matplotlib.pyplot as plt
 import copy
 
 class Prameters:
-    def __init__(self, input_size, hidden_size, output_size, init_weight_range, beta, eta, data_func, data_min_x1, data_min_x2, data_max_x1, data_max_x2):
+    def __init__(self, input_size, hidden_size, output_size, init_weight_range, beta, eta, train_times, data_func, data_min_x1, data_min_x2, data_max_x1, data_max_x2):
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.output_size = output_size
         self.init_weight_range = init_weight_range
         self.beta = beta
         self.eta = eta
+        self.train_times = train_times
         self.data_func = data_func
         self.data_min_x1 = data_min_x1
         self.data_min_x2 = data_min_x2
@@ -31,10 +32,10 @@ def gauss(x1, x2):
 def sin4pi(x1, x2):
     return [(1 + np.sin(4*np.pi*x1)) * x2 / 2]
 
-gauss_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 1.0, gauss, -2, -2, 2, 2)
-sin4pi_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 1.0, sin4pi, -2, -2, 2, 2)
+gauss_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 1.0, 10000, gauss, -2, -2, 2, 2)
+sin4pi_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 0.5, 10000, sin4pi, 0, 0, 1, 1)
 
-params = gauss_params
+params = sin4pi_params
 
 # sample data
 def make_sample_data(sample_n):
@@ -111,7 +112,7 @@ test_x = [[1, x[0], x[1]] for x in samples_x[1000:]]
 test_y = samples_y[1000:]
 
 # train
-for i in range(10000):
+for i in range(params.train_times):
     print("Epoch " + str(i))
     err_total = back_propagate(train_x, train_y)
     print("v = " + str(v))

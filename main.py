@@ -23,13 +23,11 @@ data_max_x2 = 2
 mu = np.matrix([0, 0])
 sig = np.matrix([[1,0.01],[0.01,1]])
 
-def data(x1, x2):
+def gauss(x1, x2):
     datx = np.matrix([x1, x2])
     a = np.sqrt(np.linalg.det(sig)*(2*np.pi)**sig.ndim)
     b = np.linalg.det(-0.5*(datx-mu)*sig.I*(datx-mu).T)
     return [np.exp(b)/a]
-
-print(data(0, 0))
 
 # weights
 w = np.zeros((hidden_size, input_size))     # input to hidden
@@ -41,7 +39,7 @@ def make_sample_data(sample_n):
     for i in range(sample_n):
         sample_x1 = random.uniform(data_min_x1, data_max_x1)
         sample_x2 = random.uniform(data_min_x2, data_max_x2)
-        sample_y = data(sample_x1, sample_x2)
+        sample_y = gauss(sample_x1, sample_x2)
         ret_x.append([sample_x1, sample_x2])
         ret_y.append(sample_y)
     return ret_x, ret_y
@@ -106,7 +104,7 @@ test_x = [[1, x[0], x[1]] for x in samples_x[1000:]]
 test_y = samples_y[1000:]
 
 # train
-for i in range(2000):
+for i in range(10000):
     print("Epoch " + str(i))
     err_total = back_propagate(train_x, train_y)
     print("v = " + str(v))

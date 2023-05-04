@@ -33,7 +33,7 @@ def sin4pi(x1, x2):
     return [(1 + np.sin(4*np.pi*x1)) * x2 / 2]
 
 gauss_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 1.0, 10000, gauss, -2, -2, 2, 2)
-sin4pi_params = Prameters(2 + 1, 5 + 1, 1, 0.1, 0.2, 0.5, 10000, sin4pi, 0, 0, 1, 1)
+sin4pi_params = Prameters(2 + 1, 6 + 1, 1, 0.1, 0.2, 2.0, 10000, sin4pi, 0, 0, 1, 1)
 
 params = sin4pi_params
 

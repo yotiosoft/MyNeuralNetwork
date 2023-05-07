@@ -33,7 +33,7 @@ def sin4pi(x1, x2):
     return [(1 + np.sin(4*np.pi*x1)) * x2 / 2]
 
 gauss_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 1.0, 10000, gauss, -2, -2, 2, 2)
-sin4pi_params = Prameters(2 + 1, 6 + 1, 1, 0.1, 0.2, 2.0, 10000, sin4pi, 0, 0, 1, 1)
+sin4pi_params = Prameters(2 + 1, 5 + 1, 1, 0.1, 0.2, 1.0, 10000, sin4pi, 0, 0, 1, 1)
 
 params = sin4pi_params
 
@@ -76,18 +76,18 @@ def forward_computation(x):
 
     return z, y
 
-def back_propagate(samples_x, samples_y):
-    for n in range(len(samples_x)):
-        z, y = forward_computation(samples_x[n])
-        t = samples_y[n]
+def back_propagate(training_data_x, training_data_y):
+    for n in range(len(training_data_x)):
+        z, y = forward_computation(training_data_x[n])
+        t = training_data_y[n]
         for j in range(params.hidden_size):
             for k in range(params.output_size):
                 v[k, j] = v[k, j] + params.eta * (t[k] - z[k]) * (z[k] * (1 - z[k])) * y[j]
     
     err_total = 0
-    for n in range(len(samples_x)):
-        z, y = forward_computation(samples_x[n])
-        t = samples_y[n]
+    for n in range(len(training_data_x)):
+        z, y = forward_computation(training_data_x[n])
+        t = training_data_y[n]
 
         for k in range(params.output_size):
             err_total += abs(t[k] - z[k])
@@ -97,7 +97,7 @@ def back_propagate(samples_x, samples_y):
                 s = 0
                 for k in range(params.output_size):
                     s += v[k, j] * (t[k] - z[k]) * (z[k] * (1 - z[k]))
-                w[j, i] = w[j, i] + params.eta * s * (y[j] * (1 - y[j])) * samples_x[n][i]
+                w[j, i] = w[j, i] + params.eta * s * (y[j] * (1 - y[j])) * training_data_x[n][i]
     return err_total
 
 # weights

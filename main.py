@@ -140,6 +140,20 @@ def predict(x):
     z, _ = forward_computation(x)
     return z
 
+def output_csv(csv_filename, err_array):
+    rows = []
+    if os.path.exists(params.csv_filename):
+        with open(params.csv_filename, 'r') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                if len(row) > 0:
+                    rows.append(row)
+        rows = list(zip(*rows))
+    rows.append(err_array)
+    with open(params.csv_filename, 'w') as f:
+        writer = csv.writer(f)
+        writer.writerows(list(zip(*rows)))
+
 # weights
 w = np.zeros((params.hidden_size, params.input_size))     # input to hidden
 v = np.zeros((params.output_size, params.hidden_size))    # hidden to output
@@ -165,19 +179,7 @@ for n in range(len(test_X)):
 print("error rate: " + str(test_err_total))
 
 # output to csv
-print(err_array)
-rows = []
-if os.path.exists(params.csv_filename):
-    with open(params.csv_filename, 'r') as f:
-        reader = csv.reader(f)
-        for row in reader:
-            if len(row) > 0:
-                rows.append(row)
-    rows = list(zip(*rows))
-rows.append(err_array)
-with open(params.csv_filename, 'w') as f:
-    writer = csv.writer(f)
-    writer.writerows(list(zip(*rows)))
+output_csv(params.csv_filename, err_array)
 
 # show figures
 plot_train_X1 = [x[1] for x in train_X]

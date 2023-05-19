@@ -5,6 +5,7 @@ from scipy.stats import mvn
 import matplotlib.pyplot as plt
 import copy
 import sys
+from multiprocessing import Process, Pipe
 
 class Prameters:
     def __init__(self, input_size, hidden_size, output_size, init_weight_range, beta, eta, train_times, data_func, data_min_x1, data_min_x2, data_max_x1, data_max_x2):
@@ -93,13 +94,30 @@ def forward_computation(x):
 
     return z, y
 
+def back_propagate_sub1(v, t, j, z, y, send_rev):
+    for k in range(params.output_size):
+        v[k] = v[k] + params.eta * (t[k] - z[k]) * (z[k] * (1 - z[k])) * y[j]
+    send_rev.send((j, v))
+
 def back_propagate(training_data_x, training_data_y):
     for n in range(len(training_data_x)):
         z, y = forward_computation(training_data_x[n])
         t = training_data_y[n]
+        process_list = []
+        pipe_list = []
         for j in range(params.hidden_size):
-            for k in range(params.output_size):
-                v[k, j] = v[k, j] + params.eta * (t[k] - z[k]) * (z[k] * (1 - z[k])) * y[j]
+            get_rev,send_rev  = Pipe(False)
+            process = Process(
+                target=back_propagate_sub1,
+                args=(v[:, j], t, j, z, y, send_rev))
+            process.start()
+            process_list.append(process)
+            pipe_list.append(get_rev)
+        for process in process_list:
+            process.join()
+        for pipe in pipe_list:
+            recv = pipe.recv()
+            v[:, recv[0]] = recv[1]
     
     err_total = 0
     for n in range(len(training_data_x)):

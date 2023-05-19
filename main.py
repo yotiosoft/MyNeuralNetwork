@@ -89,14 +89,14 @@ def forward_computation(beta, w, v, x):
 
 # back propagation
 # for training
-def back_propagate(beta, eta, train_x, train_y, w, v):
+def back_propagate(beta, eta, train_x, train_t, w, v):
     input_size = len(train_x[0])
     hidden_size = len(w)
     output_size = len(v)
 
     for n in range(len(train_x)):
         z, y = forward_computation(beta, w, v, train_x[n])
-        t = train_y[n]
+        t = train_t[n]
         for j in range(hidden_size):
             for k in range(output_size):
                 v[k, j] = v[k, j] + eta * (t[k] - z[k]) * (z[k] * (1 - z[k])) * y[j]
@@ -104,7 +104,7 @@ def back_propagate(beta, eta, train_x, train_y, w, v):
     err_total = 0
     for n in range(len(train_x)):
         z, y = forward_computation(beta, w, v, train_x[n])
-        t = train_y[n]
+        t = train_t[n]
 
         for k in range(output_size):
             err_total += abs(t[k] - z[k])

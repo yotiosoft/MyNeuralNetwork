@@ -143,6 +143,25 @@ def output_csv(csv_filename, err_array):
         writer = csv.writer(f)
         writer.writerows(list(zip(*rows)))
 
+def show_figures(train_X, train_Z, test_X, test_predicted):
+    plot_train_X1 = [x[1] for x in train_X]
+    plot_train_X2 = [x[2] for x in train_X]
+    plot_train_Z = [y for y in train_Z]
+
+    plot_test_X1 = [x[1] for x in test_X]
+    plot_test_X2 = [x[2] for x in test_X]
+    plot_test_predicted = [p[0] for p in test_predicted]
+
+    fig1 = plt.figure()
+    ax1 = fig1.add_subplot(projection='3d')
+    ax1.scatter(plot_train_X1, plot_train_X2, plot_train_Z, color='blue')
+
+    fig2 = plt.figure()
+    ax2 = fig2.add_subplot(projection='3d')
+    ax2.scatter(plot_test_X1, plot_test_X2, plot_test_predicted, color='green')
+
+    plt.show()
+
 if __name__ == "__main__":
     # set parameters
     gauss_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 1.0, 10000, gauss, -2, -2, 2, 2, "gauss.csv")
@@ -193,20 +212,4 @@ if __name__ == "__main__":
     output_csv(params.csv_filename, err_array)
 
     # show figures
-    plot_train_X1 = [x[1] for x in train_X]
-    plot_train_X2 = [x[2] for x in train_X]
-    plot_train_Z = [y for y in train_Z]
-
-    plot_test_X1 = [x[1] for x in test_X]
-    plot_test_X2 = [x[2] for x in test_X]
-    plot_test_predicted = [p[0] for p in test_predicted]
-
-    fig1 = plt.figure()
-    ax1 = fig1.add_subplot(projection='3d')
-    ax1.scatter(plot_train_X1, plot_train_X2, plot_train_Z, color='blue')
-
-    fig2 = plt.figure()
-    ax2 = fig2.add_subplot(projection='3d')
-    ax2.scatter(plot_test_X1, plot_test_X2, plot_test_predicted, color='green')
-
-    plt.show()
+    show_figures(train_X, train_Z, test_X, test_predicted)

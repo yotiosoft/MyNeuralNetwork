@@ -5,9 +5,11 @@ from scipy.stats import mvn
 import matplotlib.pyplot as plt
 import copy
 import sys
+import os
+import csv
 
 class Prameters:
-    def __init__(self, input_size, hidden_size, output_size, init_weight_range, beta, eta, train_times, data_func, data_min_x1, data_min_x2, data_max_x1, data_max_x2):
+    def __init__(self, input_size, hidden_size, output_size, init_weight_range, beta, eta, train_times, data_func, data_min_x1, data_min_x2, data_max_x1, data_max_x2, csv_filename):
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.output_size = output_size
@@ -20,6 +22,7 @@ class Prameters:
         self.data_min_x2 = data_min_x2
         self.data_max_x1 = data_max_x1
         self.data_max_x2 = data_max_x2
+        self.csv_filename = csv_filename
 
 mu = np.matrix([0, 0])
 sig = np.matrix([[1,0.01],[0.01,1]])
@@ -33,8 +36,8 @@ def gauss(x1, x2):
 def sin4pi(x1, x2):
     return [(1 + np.sin(4*np.pi*x1)) * x2 / 2]
 
-gauss_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 1.0, 10000, gauss, -2, -2, 2, 2)
-sin4pi_params = Prameters(2 + 1, 19 + 1, 1, 0.1, 0.01, 0.5, 10000, sin4pi, 0, 0, 1, 1)
+gauss_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 1.0, 10000, gauss, -2, -2, 2, 2, "gauss.csv")
+sin4pi_params = Prameters(2 + 1, 19 + 1, 1, 0.1, 0.01, 0.5, 10000, sin4pi, 0, 0, 1, 1, "sin4pi.csv")
 
 # hidden 9 beta 0.01 eta 0.8 -> err=25.087
 
@@ -43,16 +46,19 @@ params = sin4pi_params
 # args
 if len(sys.argv) >= 1:
     for i in range(1, len(sys.argv), 2):
-        if sys.argv[i] == "gauss":
-            params = gauss_params
-        elif sys.argv[i] == "sin4pi":
-            params = sin4pi_params
+        if sys.argv[i] == "func":
+            if sys.argv[i+1] == "gauss":
+                params = gauss_params
+            elif sys.argv[i+1] == "sin4pi":
+                params = sin4pi_params
         elif sys.argv[i] == "hidden":
             params.hidden_size = int(sys.argv[i+1])
         elif sys.argv[i] == "beta":
             params.beta = float(sys.argv[i+1])
         elif sys.argv[i] == "eta":
             params.eta = float(sys.argv[i+1])
+        elif sys.argv[i] == "train":
+            params.train_times = int(sys.argv[i+1])
 
 # sample data
 def make_sample_data(sample_n):
@@ -118,6 +124,7 @@ def back_propagate(training_data_x, training_data_y):
     return err_total
 
 def train(times, train_X, train_Z):
+    err_total_array = []
     for i in range(params.train_times):
         err_total = back_propagate(train_X, train_Z)
         if i % 100 == 0:
@@ -125,6 +132,8 @@ def train(times, train_X, train_Z):
             print("v = " + str(v))
             print("w = " + str(w))
             print("err total: " + str(err_total))
+            err_total_array.append(err_total)
+    return err_total_array
 
 
 def predict(x):
@@ -143,7 +152,7 @@ test_X = [[1, x[0], x[1]] for x in samples_X[1000:]]
 test_Z = samples_Z[1000:]
 
 # train
-train(params.train_times, train_X, train_Z)
+err_array = train(params.train_times, train_X, train_Z)
 print("train done.")
 
 # test
@@ -154,6 +163,21 @@ for n in range(len(test_X)):
     test_predicted.append(copy.deepcopy(predict_result))
     test_err_total += abs(test_Z[n] - predict_result)
 print("error rate: " + str(test_err_total))
+
+# output to csv
+print(err_array)
+rows = []
+if os.path.exists(params.csv_filename):
+    with open(params.csv_filename, 'r') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if len(row) > 0:
+                rows.append(row)
+    rows = list(zip(*rows))
+rows.append(err_array)
+with open(params.csv_filename, 'w') as f:
+    writer = csv.writer(f)
+    writer.writerows(list(zip(*rows)))
 
 # show figures
 plot_train_X1 = [x[1] for x in train_X]

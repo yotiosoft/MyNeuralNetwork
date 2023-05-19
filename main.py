@@ -34,7 +34,9 @@ def sin4pi(x1, x2):
     return [(1 + np.sin(4*np.pi*x1)) * x2 / 2]
 
 gauss_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 1.0, 10000, gauss, -2, -2, 2, 2)
-sin4pi_params = Prameters(2 + 1, 6 + 1, 1, 0.1, 0.01, 2.0, 10000, sin4pi, 0, 0, 1, 1)
+sin4pi_params = Prameters(2 + 1, 9 + 1, 1, 0.1, 0.01, 0.5, 10000, sin4pi, 0, 0, 1, 1)
+
+# hidden 9 beta 0.01 eta 0.8 -> err=25.087
 
 params = sin4pi_params
 
@@ -117,11 +119,12 @@ def back_propagate(training_data_x, training_data_y):
 
 def train(times, train_X, train_Z):
     for i in range(params.train_times):
-        print("Epoch " + str(i))
         err_total = back_propagate(train_X, train_Z)
-        print("v = " + str(v))
-        print("w = " + str(w))
-        print("err total: " + str(err_total))
+        if i % 100 == 0:
+            print("Epoch " + str(i))
+            print("v = " + str(v))
+            print("w = " + str(w))
+            print("err total: " + str(err_total))
 
 
 def predict(x):

@@ -69,42 +69,42 @@ def forward_computation(beta, w, v, x):
     hidden_size = len(w)
     output_size = len(v)
 
-    y = np.zeros(hidden_size)
-    z = np.zeros(output_size)
+    Y = np.zeros(hidden_size)
+    Z = np.zeros(output_size)
 
     for j in range(hidden_size-1):
         u = 0
         for i in range(input_size):
             u += w[j, i] * x[i]
-        y[j] = 1 / (1 + math.exp(-beta * u))    # u
-    y[hidden_size-1] = 1    # bias
+        Y[j] = 1 / (1 + math.exp(-beta * u))    # u
+    Y[hidden_size-1] = 1    # bias
 
     for k in range(output_size):
         s = 0
         for j in range(hidden_size):
-            s += v[k, j] * y[j]
-        z[k] = 1 / (1 + math.exp(-beta * s))    # s
+            s += v[k, j] * Y[j]
+        Z[k] = 1 / (1 + math.exp(-beta * s))    # s
 
-    return z, y
+    return Z, Y
 
 # back propagation
 # for training
-def back_propagate(beta, eta, w, v, training_data_x, training_data_y):
-    input_size = len(training_data_x[0])
+def back_propagate(beta, eta, train_x, train_y, w, v):
+    input_size = len(train_x[0])
     hidden_size = len(w)
     output_size = len(v)
 
-    for n in range(len(training_data_x)):
-        z, y = forward_computation(beta, w, v, training_data_x[n])
-        t = training_data_y[n]
+    for n in range(len(train_x)):
+        z, y = forward_computation(beta, w, v, train_x[n])
+        t = train_y[n]
         for j in range(hidden_size):
             for k in range(output_size):
                 v[k, j] = v[k, j] + eta * (t[k] - z[k]) * (z[k] * (1 - z[k])) * y[j]
     
     err_total = 0
-    for n in range(len(training_data_x)):
-        z, y = forward_computation(beta, w, v, training_data_x[n])
-        t = training_data_y[n]
+    for n in range(len(train_x)):
+        z, y = forward_computation(beta, w, v, train_x[n])
+        t = train_y[n]
 
         for k in range(output_size):
             err_total += abs(t[k] - z[k])
@@ -114,7 +114,7 @@ def back_propagate(beta, eta, w, v, training_data_x, training_data_y):
                 s = 0
                 for k in range(output_size):
                     s += v[k, j] * (t[k] - z[k]) * (z[k] * (1 - z[k]))
-                w[j, i] = w[j, i] + eta * s * (y[j] * (1 - y[j])) * training_data_x[n][i]
+                w[j, i] = w[j, i] + eta * s * (y[j] * (1 - y[j])) * train_x[n][i]
     return err_total
 
 # train
@@ -122,7 +122,7 @@ def back_propagate(beta, eta, w, v, training_data_x, training_data_y):
 def train(train_times, beta, eta, w, v, train_X, train_Z):
     err_total_array = []
     for i in range(train_times):
-        err_total = back_propagate(beta, eta, w, v, train_X, train_Z)
+        err_total = back_propagate(beta, eta, train_X, train_Z, w, v)
         if i % 100 == 0:
             print("Epoch " + str(i))
             print("v = " + str(v))

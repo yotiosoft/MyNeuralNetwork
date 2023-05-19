@@ -4,6 +4,7 @@ import math
 from scipy.stats import mvn
 import matplotlib.pyplot as plt
 import copy
+import sys
 
 class Prameters:
     def __init__(self, input_size, hidden_size, output_size, init_weight_range, beta, eta, train_times, data_func, data_min_x1, data_min_x2, data_max_x1, data_max_x2):
@@ -36,6 +37,20 @@ gauss_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 1.0, 10000, gauss, -2, -2, 2
 sin4pi_params = Prameters(2 + 1, 6 + 1, 1, 0.1, 0.05, 0.2, 10000, sin4pi, 0, 0, 1, 1)
 
 params = sin4pi_params
+
+# args
+if len(sys.argv) >= 1:
+    for i in range(1, len(sys.argv), 2):
+        if sys.argv[i] == "gauss":
+            params = gauss_params
+        elif sys.argv[i] == "sin4pi":
+            params = sin4pi_params
+        elif sys.argv[i] == "hidden":
+            params.hidden_size = int(sys.argv[i+1])
+        elif sys.argv[i] == "beta":
+            params.beta = float(sys.argv[i+1])
+        elif sys.argv[i] == "eta":
+            params.eta = float(sys.argv[i+1])
 
 # sample data
 def make_sample_data(sample_n):

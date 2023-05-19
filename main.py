@@ -36,27 +36,6 @@ def gauss(x1, x2):
 def sin4pi(x1, x2):
     return [(1 + np.sin(4*np.pi*x1)) * x2 / 2]
 
-gauss_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 1.0, 10000, gauss, -2, -2, 2, 2, "gauss.csv")
-sin4pi_params = Prameters(2 + 1, 19 + 1, 1, 0.1, 0.01, 1.0, 10000, sin4pi, 0, 0, 1, 1, "sin4pi.csv")
-params = sin4pi_params
-
-# args
-if len(sys.argv) >= 1:
-    for i in range(1, len(sys.argv), 2):
-        if sys.argv[i] == "func":
-            if sys.argv[i+1] == "gauss":
-                params = gauss_params
-            elif sys.argv[i+1] == "sin4pi":
-                params = sin4pi_params
-        elif sys.argv[i] == "hidden":
-            params.hidden_size = int(sys.argv[i+1])
-        elif sys.argv[i] == "beta":
-            params.beta = float(sys.argv[i+1])
-        elif sys.argv[i] == "eta":
-            params.eta = float(sys.argv[i+1])
-        elif sys.argv[i] == "train":
-            params.train_times = int(sys.argv[i+1])
-
 # sample data
 def make_sample_data(data_min_x1, data_min_x2, data_max_x1, data_max_x2, data_func, sample_n):
     ret_x, ret_z = [], []
@@ -69,6 +48,9 @@ def make_sample_data(data_min_x1, data_min_x2, data_max_x1, data_max_x2, data_fu
     return ret_x, ret_z
 
 def init_weights(init_weight_range, input_size, hidden_size, output_size):
+    w = np.zeros((params.hidden_size, params.input_size))     # input to hidden
+    v = np.zeros((params.output_size, params.hidden_size))    # hidden to output
+
     for i in range(input_size):
         for j in range(hidden_size):
             w[j, i] = random.uniform(-init_weight_range/2, init_weight_range/2)
@@ -76,6 +58,8 @@ def init_weights(init_weight_range, input_size, hidden_size, output_size):
     for i in range(hidden_size):
         for j in range(output_size):
             v[j, i] = random.uniform(-init_weight_range/2, init_weight_range/2)
+
+    return w, v
 
 def forward_computation(beta, w, v, x):
     input_size = len(x)
@@ -160,11 +144,32 @@ def output_csv(csv_filename, err_array):
         writer.writerows(list(zip(*rows)))
 
 if __name__ == "__main__":
-    # weights
-    w = np.zeros((params.hidden_size, params.input_size))     # input to hidden
-    v = np.zeros((params.output_size, params.hidden_size))    # hidden to output
+    # set parameters
+    gauss_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 1.0, 10000, gauss, -2, -2, 2, 2, "gauss.csv")
+    sin4pi_params = Prameters(2 + 1, 19 + 1, 1, 0.1, 0.01, 1.0, 10000, sin4pi, 0, 0, 1, 1, "sin4pi.csv")
+    params = sin4pi_params
 
-    init_weights(params.init_weight_range, params.input_size, params.hidden_size, params.output_size)
+    # get args
+    if len(sys.argv) >= 1:
+        for i in range(1, len(sys.argv), 2):
+            if sys.argv[i] == "func":
+                if sys.argv[i+1] == "gauss":
+                    params = gauss_params
+                elif sys.argv[i+1] == "sin4pi":
+                    params = sin4pi_params
+            elif sys.argv[i] == "hidden":
+                params.hidden_size = int(sys.argv[i+1])
+            elif sys.argv[i] == "beta":
+                params.beta = float(sys.argv[i+1])
+            elif sys.argv[i] == "eta":
+                params.eta = float(sys.argv[i+1])
+            elif sys.argv[i] == "train":
+                params.train_times = int(sys.argv[i+1])
+
+    # initialize weights
+    w, v = init_weights(params.init_weight_range, params.input_size, params.hidden_size, params.output_size)
+
+    # make sample data
     samples_X, samples_Z = make_sample_data(params.data_min_x1, params.data_min_x2, params.data_max_x1, params.data_max_x2, params.data_func, 2000)
     train_X = [[1, x[0], x[1]] for x in samples_X[:1000]]
     train_Z = samples_Z[:1000]

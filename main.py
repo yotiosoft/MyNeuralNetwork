@@ -80,7 +80,7 @@ def init_weights():
         for j in range(params.output_size):
             v[j, i] = random.uniform(-params.init_weight_range/2, params.init_weight_range/2)
 
-def forward_computation(x):
+def forward_computation(w, v, x):
     y = np.zeros(params.hidden_size)
     z = np.zeros(params.output_size)
 
@@ -99,9 +99,9 @@ def forward_computation(x):
 
     return z, y
 
-def back_propagate(training_data_x, training_data_y):
+def back_propagate(w, v, training_data_x, training_data_y):
     for n in range(len(training_data_x)):
-        z, y = forward_computation(training_data_x[n])
+        z, y = forward_computation(w, v, training_data_x[n])
         t = training_data_y[n]
         for j in range(params.hidden_size):
             for k in range(params.output_size):
@@ -109,7 +109,7 @@ def back_propagate(training_data_x, training_data_y):
     
     err_total = 0
     for n in range(len(training_data_x)):
-        z, y = forward_computation(training_data_x[n])
+        z, y = forward_computation(w, v, training_data_x[n])
         t = training_data_y[n]
 
         for k in range(params.output_size):
@@ -123,10 +123,10 @@ def back_propagate(training_data_x, training_data_y):
                 w[j, i] = w[j, i] + params.eta * s * (y[j] * (1 - y[j])) * training_data_x[n][i]
     return err_total
 
-def train(times, train_X, train_Z):
+def train(w, v, train_X, train_Z):
     err_total_array = []
     for i in range(params.train_times):
-        err_total = back_propagate(train_X, train_Z)
+        err_total = back_propagate(w, v, train_X, train_Z)
         if i % 100 == 0:
             print("Epoch " + str(i))
             print("v = " + str(v))
@@ -136,8 +136,8 @@ def train(times, train_X, train_Z):
     return err_total_array
 
 
-def predict(x):
-    z, _ = forward_computation(x)
+def predict(w, v, x):
+    z, _ = forward_computation(w, v, x)
     return z
 
 def output_csv(csv_filename, err_array):
@@ -154,48 +154,49 @@ def output_csv(csv_filename, err_array):
         writer = csv.writer(f)
         writer.writerows(list(zip(*rows)))
 
-# weights
-w = np.zeros((params.hidden_size, params.input_size))     # input to hidden
-v = np.zeros((params.output_size, params.hidden_size))    # hidden to output
+if __name__ == "__main__":
+    # weights
+    w = np.zeros((params.hidden_size, params.input_size))     # input to hidden
+    v = np.zeros((params.output_size, params.hidden_size))    # hidden to output
 
-init_weights()
-samples_X, samples_Z = make_sample_data(2000)
-train_X = [[1, x[0], x[1]] for x in samples_X[:1000]]
-train_Z = samples_Z[:1000]
-test_X = [[1, x[0], x[1]] for x in samples_X[1000:]]
-test_Z = samples_Z[1000:]
+    init_weights()
+    samples_X, samples_Z = make_sample_data(2000)
+    train_X = [[1, x[0], x[1]] for x in samples_X[:1000]]
+    train_Z = samples_Z[:1000]
+    test_X = [[1, x[0], x[1]] for x in samples_X[1000:]]
+    test_Z = samples_Z[1000:]
 
-# train
-err_array = train(params.train_times, train_X, train_Z)
-print("train done.")
+    # train
+    err_array = train(w, v, train_X, train_Z)
+    print("train done.")
 
-# test
-test_err_total = 0
-test_predicted = []
-for n in range(len(test_X)):
-    predict_result = predict(test_X[n])
-    test_predicted.append(copy.deepcopy(predict_result))
-    test_err_total += abs(test_Z[n] - predict_result)
-print("error rate: " + str(test_err_total))
+    # test
+    test_err_total = 0
+    test_predicted = []
+    for n in range(len(test_X)):
+        predict_result = predict(w, v, test_X[n])
+        test_predicted.append(copy.deepcopy(predict_result))
+        test_err_total += abs(test_Z[n] - predict_result)
+    print("error rate: " + str(test_err_total))
 
-# output to csv
-output_csv(params.csv_filename, err_array)
+    # output to csv
+    output_csv(params.csv_filename, err_array)
 
-# show figures
-plot_train_X1 = [x[1] for x in train_X]
-plot_train_X2 = [x[2] for x in train_X]
-plot_train_Z = [y for y in train_Z]
+    # show figures
+    plot_train_X1 = [x[1] for x in train_X]
+    plot_train_X2 = [x[2] for x in train_X]
+    plot_train_Z = [y for y in train_Z]
 
-plot_test_X1 = [x[1] for x in test_X]
-plot_test_X2 = [x[2] for x in test_X]
-plot_test_predicted = [p[0] for p in test_predicted]
+    plot_test_X1 = [x[1] for x in test_X]
+    plot_test_X2 = [x[2] for x in test_X]
+    plot_test_predicted = [p[0] for p in test_predicted]
 
-fig1 = plt.figure()
-ax1 = fig1.add_subplot(projection='3d')
-ax1.scatter(plot_train_X1, plot_train_X2, plot_train_Z, color='blue')
+    fig1 = plt.figure()
+    ax1 = fig1.add_subplot(projection='3d')
+    ax1.scatter(plot_train_X1, plot_train_X2, plot_train_Z, color='blue')
 
-fig2 = plt.figure()
-ax2 = fig2.add_subplot(projection='3d')
-ax2.scatter(plot_test_X1, plot_test_X2, plot_test_predicted, color='green')
+    fig2 = plt.figure()
+    ax2 = fig2.add_subplot(projection='3d')
+    ax2.scatter(plot_test_X1, plot_test_X2, plot_test_predicted, color='green')
 
-plt.show()
+    plt.show()

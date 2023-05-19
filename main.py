@@ -38,9 +38,6 @@ def sin4pi(x1, x2):
 
 gauss_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 1.0, 10000, gauss, -2, -2, 2, 2, "gauss.csv")
 sin4pi_params = Prameters(2 + 1, 19 + 1, 1, 0.1, 0.01, 1.0, 10000, sin4pi, 0, 0, 1, 1, "sin4pi.csv")
-
-# hidden 9 beta 0.01 eta 0.8 -> err=25.087
-
 params = sin4pi_params
 
 # args
@@ -61,45 +58,45 @@ if len(sys.argv) >= 1:
             params.train_times = int(sys.argv[i+1])
 
 # sample data
-def make_sample_data(sample_n):
+def make_sample_data(data_min_x1, data_min_x2, data_max_x1, data_max_x2, data_func, sample_n):
     ret_x, ret_z = [], []
     for i in range(sample_n):
-        sample_x1 = random.uniform(params.data_min_x1, params.data_max_x1)
-        sample_x2 = random.uniform(params.data_min_x2, params.data_max_x2)
-        sample_z = params.data_func(sample_x1, sample_x2)
+        sample_x1 = random.uniform(data_min_x1, data_max_x1)
+        sample_x2 = random.uniform(data_min_x2, data_max_x2)
+        sample_z = data_func(sample_x1, sample_x2)
         ret_x.append([sample_x1, sample_x2])
         ret_z.append(sample_z)
     return ret_x, ret_z
 
-def init_weights():
-    for i in range(params.input_size):
-        for j in range(params.hidden_size):
-            w[j, i] = random.uniform(-params.init_weight_range/2, params.init_weight_range/2)
+def init_weights(init_weight_range, input_size, hidden_size, output_size):
+    for i in range(input_size):
+        for j in range(hidden_size):
+            w[j, i] = random.uniform(-init_weight_range/2, init_weight_range/2)
 
-    for i in range(params.hidden_size):
-        for j in range(params.output_size):
-            v[j, i] = random.uniform(-params.init_weight_range/2, params.init_weight_range/2)
+    for i in range(hidden_size):
+        for j in range(output_size):
+            v[j, i] = random.uniform(-init_weight_range/2, init_weight_range/2)
 
-def forward_computation(w, v, x):
-    y = np.zeros(params.hidden_size)
-    z = np.zeros(params.output_size)
+def forward_computation(hidden_size, output_size, beta, w, v, x):
+    y = np.zeros(hidden_size)
+    z = np.zeros(output_size)
 
-    for j in range(params.hidden_size-1):
+    for j in range(hidden_size-1):
         u = 0
-        for i in range(params.input_size):
+        for i in range(input_size):
             u += w[j, i] * x[i]
-        y[j] = 1 / (1 + math.exp(-params.beta * u))    # u
-    y[params.hidden_size-1] = 1    # bias
+        y[j] = 1 / (1 + math.exp(-beta * u))    # u
+    y[hidden_size-1] = 1    # bias
 
-    for k in range(params.output_size):
+    for k in range(output_size):
         s = 0
-        for j in range(params.hidden_size):
+        for j in range(hidden_size):
             s += v[k, j] * y[j]
-        z[k] = 1 / (1 + math.exp(-params.beta * s))    # s
+        z[k] = 1 / (1 + math.exp(-beta * s))    # s
 
     return z, y
 
-def back_propagate(w, v, training_data_x, training_data_y):
+def back_propagate(hidden_size, output_size, w, v, training_data_x, training_data_y):
     for n in range(len(training_data_x)):
         z, y = forward_computation(w, v, training_data_x[n])
         t = training_data_y[n]
@@ -136,8 +133,8 @@ def train(w, v, train_X, train_Z):
     return err_total_array
 
 
-def predict(w, v, x):
-    z, _ = forward_computation(w, v, x)
+def predict(hidden_size, output_size, w, v, x):
+    z, _ = forward_computation(hidden_size, output_size, params.beta, w, v, x)
     return z
 
 def output_csv(csv_filename, err_array):
@@ -159,8 +156,8 @@ if __name__ == "__main__":
     w = np.zeros((params.hidden_size, params.input_size))     # input to hidden
     v = np.zeros((params.output_size, params.hidden_size))    # hidden to output
 
-    init_weights()
-    samples_X, samples_Z = make_sample_data(2000)
+    init_weights(params.init_weight_range, params.input_size, params.hidden_size, params.output_size)
+    samples_X, samples_Z = make_sample_data(params.data_min_x1, params.data_min_x2, params.data_max_x1, params.data_max_x2, params.data_func, 2000)
     train_X = [[1, x[0], x[1]] for x in samples_X[:1000]]
     train_Z = samples_Z[:1000]
     test_X = [[1, x[0], x[1]] for x in samples_X[1000:]]
@@ -174,7 +171,7 @@ if __name__ == "__main__":
     test_err_total = 0
     test_predicted = []
     for n in range(len(test_X)):
-        predict_result = predict(w, v, test_X[n])
+        predict_result = predict(params.hidden_size, params.output_size, w, v, test_X[n])
         test_predicted.append(copy.deepcopy(predict_result))
         test_err_total += abs(test_Z[n] - predict_result)
     print("error rate: " + str(test_err_total))

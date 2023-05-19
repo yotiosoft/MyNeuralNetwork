@@ -77,7 +77,11 @@ def init_weights(init_weight_range, input_size, hidden_size, output_size):
         for j in range(output_size):
             v[j, i] = random.uniform(-init_weight_range/2, init_weight_range/2)
 
-def forward_computation(hidden_size, output_size, beta, w, v, x):
+def forward_computation(beta, w, v, x):
+    input_size = len(x)
+    hidden_size = len(w)
+    output_size = len(v)
+
     y = np.zeros(hidden_size)
     z = np.zeros(output_size)
 
@@ -96,34 +100,38 @@ def forward_computation(hidden_size, output_size, beta, w, v, x):
 
     return z, y
 
-def back_propagate(hidden_size, output_size, w, v, training_data_x, training_data_y):
+def back_propagate(beta, eta, w, v, training_data_x, training_data_y):
+    input_size = len(training_data_x[0])
+    hidden_size = len(w)
+    output_size = len(v)
+
     for n in range(len(training_data_x)):
-        z, y = forward_computation(w, v, training_data_x[n])
+        z, y = forward_computation(beta, w, v, training_data_x[n])
         t = training_data_y[n]
-        for j in range(params.hidden_size):
-            for k in range(params.output_size):
-                v[k, j] = v[k, j] + params.eta * (t[k] - z[k]) * (z[k] * (1 - z[k])) * y[j]
+        for j in range(hidden_size):
+            for k in range(output_size):
+                v[k, j] = v[k, j] + eta * (t[k] - z[k]) * (z[k] * (1 - z[k])) * y[j]
     
     err_total = 0
     for n in range(len(training_data_x)):
-        z, y = forward_computation(w, v, training_data_x[n])
+        z, y = forward_computation(beta, w, v, training_data_x[n])
         t = training_data_y[n]
 
-        for k in range(params.output_size):
+        for k in range(output_size):
             err_total += abs(t[k] - z[k])
 
-        for i in range(params.input_size):
-            for j in range(params.hidden_size):
+        for i in range(input_size):
+            for j in range(hidden_size):
                 s = 0
-                for k in range(params.output_size):
+                for k in range(output_size):
                     s += v[k, j] * (t[k] - z[k]) * (z[k] * (1 - z[k]))
-                w[j, i] = w[j, i] + params.eta * s * (y[j] * (1 - y[j])) * training_data_x[n][i]
+                w[j, i] = w[j, i] + eta * s * (y[j] * (1 - y[j])) * training_data_x[n][i]
     return err_total
 
-def train(w, v, train_X, train_Z):
+def train(train_times, beta, eta, w, v, train_X, train_Z):
     err_total_array = []
-    for i in range(params.train_times):
-        err_total = back_propagate(w, v, train_X, train_Z)
+    for i in range(train_times):
+        err_total = back_propagate(beta, eta, w, v, train_X, train_Z)
         if i % 100 == 0:
             print("Epoch " + str(i))
             print("v = " + str(v))
@@ -133,21 +141,21 @@ def train(w, v, train_X, train_Z):
     return err_total_array
 
 
-def predict(hidden_size, output_size, w, v, x):
-    z, _ = forward_computation(hidden_size, output_size, params.beta, w, v, x)
+def predict(beta, w, v, x):
+    z, _ = forward_computation(beta, w, v, x)
     return z
 
 def output_csv(csv_filename, err_array):
     rows = []
-    if os.path.exists(params.csv_filename):
-        with open(params.csv_filename, 'r') as f:
+    if os.path.exists(csv_filename):
+        with open(csv_filename, 'r') as f:
             reader = csv.reader(f)
             for row in reader:
                 if len(row) > 0:
                     rows.append(row)
         rows = list(zip(*rows))
     rows.append(err_array)
-    with open(params.csv_filename, 'w') as f:
+    with open(csv_filename, 'w') as f:
         writer = csv.writer(f)
         writer.writerows(list(zip(*rows)))
 
@@ -164,14 +172,14 @@ if __name__ == "__main__":
     test_Z = samples_Z[1000:]
 
     # train
-    err_array = train(w, v, train_X, train_Z)
+    err_array = train(params.train_times, params.beta, params.eta, w, v, train_X, train_Z)
     print("train done.")
 
     # test
     test_err_total = 0
     test_predicted = []
     for n in range(len(test_X)):
-        predict_result = predict(params.hidden_size, params.output_size, w, v, test_X[n])
+        predict_result = predict(params.beta, w, v, test_X[n])
         test_predicted.append(copy.deepcopy(predict_result))
         test_err_total += abs(test_Z[n] - predict_result)
     print("error rate: " + str(test_err_total))

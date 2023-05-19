@@ -24,9 +24,9 @@ class Prameters:
         self.data_max_x2 = data_max_x2
         self.csv_filename = csv_filename
 
+# nonlinear functions
 mu = np.matrix([0, 0])
 sig = np.matrix([[1,0.01],[0.01,1]])
-
 def gauss(x1, x2):
     datx = np.matrix([x1, x2])
     a = np.sqrt(np.linalg.det(sig)*(2*np.pi)**sig.ndim)
@@ -36,7 +36,7 @@ def gauss(x1, x2):
 def sin4pi(x1, x2):
     return [(1 + np.sin(4*np.pi*x1)) * x2 / 2]
 
-# sample data
+# make sample data
 def make_sample_data(data_min_x1, data_min_x2, data_max_x1, data_max_x2, data_func, sample_n):
     ret_x, ret_z = [], []
     for i in range(sample_n):
@@ -47,6 +47,7 @@ def make_sample_data(data_min_x1, data_min_x2, data_max_x1, data_max_x2, data_fu
         ret_z.append(sample_z)
     return ret_x, ret_z
 
+# initialize weights
 def init_weights(init_weight_range, input_size, hidden_size, output_size):
     w = np.zeros((params.hidden_size, params.input_size))     # input to hidden
     v = np.zeros((params.output_size, params.hidden_size))    # hidden to output
@@ -61,6 +62,8 @@ def init_weights(init_weight_range, input_size, hidden_size, output_size):
 
     return w, v
 
+# forward computation
+# for prediction
 def forward_computation(beta, w, v, x):
     input_size = len(x)
     hidden_size = len(w)
@@ -84,6 +87,8 @@ def forward_computation(beta, w, v, x):
 
     return z, y
 
+# back propagation
+# for training
 def back_propagate(beta, eta, w, v, training_data_x, training_data_y):
     input_size = len(training_data_x[0])
     hidden_size = len(w)
@@ -112,6 +117,8 @@ def back_propagate(beta, eta, w, v, training_data_x, training_data_y):
                 w[j, i] = w[j, i] + eta * s * (y[j] * (1 - y[j])) * training_data_x[n][i]
     return err_total
 
+# train
+# call back_propagate() for train_times
 def train(train_times, beta, eta, w, v, train_X, train_Z):
     err_total_array = []
     for i in range(train_times):
@@ -124,11 +131,13 @@ def train(train_times, beta, eta, w, v, train_X, train_Z):
             err_total_array.append(err_total)
     return err_total_array
 
-
+# predict
+# call forward_computation()
 def predict(beta, w, v, x):
     z, _ = forward_computation(beta, w, v, x)
     return z
 
+# output to csv file
 def output_csv(csv_filename, err_array):
     rows = []
     if os.path.exists(csv_filename):
@@ -143,6 +152,8 @@ def output_csv(csv_filename, err_array):
         writer = csv.writer(f)
         writer.writerows(list(zip(*rows)))
 
+# show figures
+# using matplotlib
 def show_figures(train_X, train_Z, test_X, test_predicted):
     plot_train_X1 = [x[1] for x in train_X]
     plot_train_X2 = [x[2] for x in train_X]

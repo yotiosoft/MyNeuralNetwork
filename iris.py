@@ -216,6 +216,9 @@ if __name__ == "__main__":
         test_Z = samples_Z[1000:]
     elif params == iris_params:
         samples_X, samples_T = iris.data, iris.target
+        samples = list(zip(samples_X, samples_T))
+        random.shuffle(samples)
+        samples_X, samples_T = zip(*samples)
         samples_Z = []
         for t in samples_T:
             if t == 0:
@@ -241,6 +244,12 @@ if __name__ == "__main__":
         test_predicted.append(copy.deepcopy(predict_result))
         test_err_total += abs(test_Z[n] - predict_result)
         print("test " + str(n) + ": " + str(test_Z[n]) + " -> " + str(predict_result))
+        answer = np.argmax(test_Z[n])
+        predicted = np.argmax(predict_result)
+        if answer == predicted:
+            print("correct")
+        else:
+            print("incorrect")
     print("error rate: " + str(test_err_total))
 
     # output to csv

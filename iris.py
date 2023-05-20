@@ -7,6 +7,9 @@ import copy
 import sys
 import os
 import csv
+from sklearn.datasets import load_iris
+
+iris = load_iris()
 
 class Prameters:
     def __init__(self, input_size, hidden_size, output_size, init_weight_range, beta, eta, train_times, data_func, data_min_x1, data_min_x2, data_max_x1, data_max_x2, csv_filename):
@@ -177,7 +180,8 @@ if __name__ == "__main__":
     # set parameters
     gauss_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 1.0, 10000, gauss, -2, -2, 2, 2, "gauss.csv")
     sin4pi_params = Prameters(2 + 1, 24 + 1, 1, 0.1, 0.01, 1.0, 10000, sin4pi, 0, 0, 1, 1, "sin4pi.csv")
-    params = sin4pi_params
+    iris_params = Prameters(4 + 1, 4 + 1, 3, 0.1, 0.01, 1.0, 10000, None, 0, 0, 1, 1, "iris.csv")
+    params = iris_params
 
     # get args
     if len(sys.argv) >= 1:
@@ -187,6 +191,8 @@ if __name__ == "__main__":
                     params = gauss_params
                 elif sys.argv[i+1] == "sin4pi":
                     params = sin4pi_params
+                elif sys.argv[i+1] == "iris":
+                    params = iris_params
             elif sys.argv[i] == "hidden":
                 params.hidden_size = int(sys.argv[i+1])
             elif sys.argv[i] == "beta":
@@ -202,11 +208,26 @@ if __name__ == "__main__":
     w, v = init_weights(params.init_weight_range, params.input_size, params.hidden_size, params.output_size)
 
     # make sample data
-    samples_X, samples_Z = make_sample_data(params.data_min_x1, params.data_min_x2, params.data_max_x1, params.data_max_x2, params.data_func, 2000)
-    train_X = [[1, x[0], x[1]] for x in samples_X[:1000]]
-    train_Z = samples_Z[:1000]
-    test_X = [[1, x[0], x[1]] for x in samples_X[1000:]]
-    test_Z = samples_Z[1000:]
+    if params == gauss_params or params == sin4pi_params:
+        samples_X, samples_Z = make_sample_data(params.data_min_x1, params.data_min_x2, params.data_max_x1, params.data_max_x2, params.data_func, 2000)
+        train_X = [[1, x[0], x[1]] for x in samples_X[:1000]]
+        train_Z = samples_Z[:1000]
+        test_X = [[1, x[0], x[1]] for x in samples_X[1000:]]
+        test_Z = samples_Z[1000:]
+    elif params == iris_params:
+        samples_X, samples_T = iris.data, iris.target
+        samples_Z = []
+        for t in samples_T:
+            if t == 0:
+                samples_Z.append([1, 0, 0])
+            elif t == 1:
+                samples_Z.append([0, 1, 0])
+            elif t == 2:
+                samples_Z.append([0, 0, 1])
+        train_X = [[1, x[0], x[1], x[2], x[3]] for x in samples_X[:75]]
+        train_Z = [[z[0], z[1], z[2]] for z in samples_Z[:75]]
+        test_X = [[1, x[0], x[1], x[2], x[3]] for x in samples_X[75:]]
+        test_Z = [[z[0], z[1], z[2]] for z in samples_Z[75:]]
 
     # train
     err_array = train(params.train_times, params.beta, params.eta, w, v, train_X, train_Z)
@@ -219,10 +240,12 @@ if __name__ == "__main__":
         predict_result = predict(params.beta, w, v, test_X[n])
         test_predicted.append(copy.deepcopy(predict_result))
         test_err_total += abs(test_Z[n] - predict_result)
+        print("test " + str(n) + ": " + str(test_Z[n]) + " -> " + str(predict_result))
     print("error rate: " + str(test_err_total))
 
     # output to csv
     output_csv(params.csv_filename, err_array)
 
     # show figures
-    show_figures(train_X, train_Z, test_X, test_predicted)
+    if params == gauss_params or params == sin4pi_params:
+        show_figures(train_X, train_Z, test_X, test_predicted)

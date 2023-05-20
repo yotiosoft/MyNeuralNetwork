@@ -123,7 +123,7 @@ def back_propagate(beta, eta, train_x, train_t, w, v):
 # train
 # call back_propagate() for train_times
 def train(train_times, beta, eta, w, v, train_X, train_Z):
-    err_total_array = []
+    err_array = []
     for i in range(train_times):
         err_total = back_propagate(beta, eta, train_X, train_Z, w, v)
         if i % 100 == 0:
@@ -131,8 +131,8 @@ def train(train_times, beta, eta, w, v, train_X, train_Z):
             print("v = " + str(v))
             print("w = " + str(w))
             print("err total: " + str(err_total))
-            err_total_array.append(err_total)
-    return err_total_array
+            err_array.append(err_total)
+    return err_array
 
 # predict
 # call forward_computation()
@@ -178,7 +178,7 @@ def show_figures(train_X, train_Z, test_X, test_predicted):
 
 if __name__ == "__main__":
     # set parameters
-    gauss_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 1.0, 10000, gauss, -2, -2, 2, 2, "gauss.csv")
+    gauss_params = Prameters(2 + 1, 7 + 1, 1, 0.1, 0.2, 1.0, 10000, gauss, -2, -2, 2, 2, "gauss.csv")
     sin4pi_params = Prameters(2 + 1, 24 + 1, 1, 0.1, 0.01, 1.0, 10000, sin4pi, 0, 0, 1, 1, "sin4pi.csv")
     iris_params = Prameters(4 + 1, 9 + 1, 3, 0.1, 0.5, 0.5, 10000, None, 0, 0, 1, 1, "iris.csv")
     params = iris_params
@@ -243,13 +243,14 @@ if __name__ == "__main__":
         predict_result = predict(params.beta, w, v, test_X[n])
         test_predicted.append(copy.deepcopy(predict_result))
         test_err_total += abs(test_Z[n] - predict_result)
-        print("test " + str(n) + ": " + str(test_Z[n]) + " -> " + str(predict_result))
-        answer = np.argmax(test_Z[n])
-        predicted = np.argmax(predict_result)
-        if answer == predicted:
-            print("correct")
-        else:
-            print("incorrect")
+        if params == iris_params:
+            print("test " + str(n) + ": " + str(test_Z[n]) + " -> " + str(predict_result))
+            answer = np.argmax(test_Z[n])
+            predicted = np.argmax(predict_result)
+            if answer == predicted:
+                print("correct")
+            else:
+                print("incorrect")
     print("error rate: " + str(test_err_total))
 
     # output to csv

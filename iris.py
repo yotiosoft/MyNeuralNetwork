@@ -180,7 +180,7 @@ if __name__ == "__main__":
     # set parameters
     gauss_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 1.0, 10000, gauss, -2, -2, 2, 2, "gauss.csv")
     sin4pi_params = Prameters(2 + 1, 24 + 1, 1, 0.1, 0.01, 1.0, 10000, sin4pi, 0, 0, 1, 1, "sin4pi.csv")
-    iris_params = Prameters(4 + 1, 4 + 1, 3, 0.1, 0.01, 1.0, 10000, None, 0, 0, 1, 1, "iris.csv")
+    iris_params = Prameters(4 + 1, 4 + 1, 3, 0.1, 0.5, 1.0, 10000, None, 0, 0, 1, 1, "iris.csv")
     params = iris_params
 
     # get args

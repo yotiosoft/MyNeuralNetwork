@@ -34,7 +34,9 @@ def gauss(x1, x2):
     return [np.exp(b)/a]
 
 def sin4pi(x1, x2):
-    return [(1 + np.sin(4*np.pi*x1)) * x2 / 2]
+    # return [(1 + np.sin(4*np.pi*x1)) * x2 / 2]
+    # return [(np.cos(2 * np.pi * x1)) / 2 + pow(x2, 3) / 2 + 2]
+    return [pow(x1, 2) - pow(x2, 2)]
 
 # make sample data
 def make_sample_data(data_min_x1, data_min_x2, data_max_x1, data_max_x2, data_func, sample_n):
@@ -176,7 +178,7 @@ def show_figures(train_X, train_Z, test_X, test_predicted):
 if __name__ == "__main__":
     # set parameters
     gauss_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 1.0, 10000, gauss, -2, -2, 2, 2, "gauss.csv")
-    sin4pi_params = Prameters(2 + 1, 24 + 1, 1, 0.1, 0.01, 1.0, 10000, sin4pi, 0, 0, 1, 1, "sin4pi.csv")
+    sin4pi_params = Prameters(2 + 1, 34 + 1, 1, 0.1, 0.01, 0.1, 10000, sin4pi, 0, 0, 1, 1, "sincos.csv")
     params = sin4pi_params
 
     # get args

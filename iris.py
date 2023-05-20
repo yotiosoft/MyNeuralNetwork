@@ -72,23 +72,23 @@ def forward_computation(beta, w, v, x):
     hidden_size = len(w)
     output_size = len(v)
 
-    Y = np.zeros(hidden_size)
-    Z = np.zeros(output_size)
+    y = np.zeros(hidden_size)
+    z = np.zeros(output_size)
 
     for j in range(hidden_size-1):
         u = 0
         for i in range(input_size):
             u += w[j, i] * x[i]
-        Y[j] = 1 / (1 + math.exp(-beta * u))    # u
-    Y[hidden_size-1] = 1    # bias
+        y[j] = 1 / (1 + math.exp(-beta * u))    # u
+    y[hidden_size-1] = 1    # bias
 
     for k in range(output_size):
         s = 0
         for j in range(hidden_size):
-            s += v[k, j] * Y[j]
-        Z[k] = 1 / (1 + math.exp(-beta * s))    # s
+            s += v[k, j] * y[j]
+        z[k] = 1 / (1 + math.exp(-beta * s))    # s
 
-    return Z, Y
+    return z, y
 
 # back propagation
 # for training
@@ -178,8 +178,8 @@ def show_figures(train_X, train_Z, test_X, test_predicted):
 
 if __name__ == "__main__":
     # set parameters
-    gauss_params = Prameters(2 + 1, 7 + 1, 1, 0.1, 0.2, 1.0, 10000, gauss, -2, -2, 2, 2, "gauss.csv")
-    sin4pi_params = Prameters(2 + 1, 24 + 1, 1, 0.1, 0.01, 1.0, 10000, sin4pi, 0, 0, 1, 1, "sin4pi.csv")
+    gauss_params = Prameters(2 + 1, 7 + 1, 1, 0.1, 0.2, 0.5, 10000, gauss, -2, -2, 2, 2, "gauss.csv")
+    sin4pi_params = Prameters(2 + 1, 14 + 1, 1, 0.1, 0.01, 1.0, 10000, sin4pi, 0, 0, 1, 1, "sin4pi.csv")
     iris_params = Prameters(4 + 1, 9 + 1, 3, 0.1, 0.5, 0.5, 10000, None, 0, 0, 1, 1, "iris.csv")
     params = iris_params
 

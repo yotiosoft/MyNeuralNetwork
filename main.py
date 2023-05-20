@@ -195,6 +195,8 @@ if __name__ == "__main__":
                 params.eta = float(sys.argv[i+1])
             elif sys.argv[i] == "train":
                 params.train_times = int(sys.argv[i+1])
+            elif sys.argv[i] == "csv":
+                params.csv_filename = sys.argv[i+1]
 
     # initialize weights
     w, v = init_weights(params.init_weight_range, params.input_size, params.hidden_size, params.output_size)

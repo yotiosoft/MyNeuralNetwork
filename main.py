@@ -191,7 +191,7 @@ def show_figures(train_X, train_Z, test_X, test_predicted, err_array):
 if __name__ == "__main__":
     # set parameters
     gauss_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 0.5, 10000, gauss, -2, -2, 2, 2, "gauss.csv")
-    sin4pi_params = Prameters(2 + 1, 19 + 1, 1, 0.1, 0.01, 1.5, 10000, sin4pi, -2, -2, 2, 2, "sincos.csv")
+    sin4pi_params = Prameters(2 + 1, 19 + 1, 1, 0.1, 0.01, 1.0, 10000, sin4pi, -2, -2, 2, 2, "sincos.csv")
     params = sin4pi_params
 
     # get args

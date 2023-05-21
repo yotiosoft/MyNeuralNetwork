@@ -36,7 +36,7 @@ def gauss(x1, x2):
 def sin4pi(x1, x2):
     # return [(1 + np.sin(4*np.pi*x1)) * x2 / 2]
     # return [(np.cos(2 * np.pi * x1)) / 2 + pow(x2, 3) / 2 + 2]
-    return [(x1 + np.cos(2 * np.pi * x2) + 1) / 3]
+    return [(np.sin(x1 * np.pi) + 1) / 5 + (x2 + 2) / 10]
 
 # make sample data
 def make_sample_data(data_min_x1, data_min_x2, data_max_x1, data_max_x2, data_func, sample_n):
@@ -71,23 +71,23 @@ def forward_computation(beta, w, v, x):
     hidden_size = len(w)
     output_size = len(v)
 
-    Y = np.zeros(hidden_size)
-    Z = np.zeros(output_size)
+    y = np.zeros(hidden_size)
+    z = np.zeros(output_size)
 
     for j in range(hidden_size-1):
         u = 0
         for i in range(input_size):
             u += w[j, i] * x[i]
-        Y[j] = 1 / (1 + math.exp(-beta * u))    # u
-    Y[hidden_size-1] = 1    # bias
+        y[j] = 1 / (1 + math.exp(-beta * u))    # u
+    y[hidden_size-1] = 1    # bias
 
     for k in range(output_size):
         s = 0
         for j in range(hidden_size):
-            s += v[k, j] * Y[j]
-        Z[k] = 1 / (1 + math.exp(-beta * s))    # s
+            s += v[k, j] * y[j]
+        z[k] = 1 / (1 + math.exp(-beta * s))    # s
 
-    return Z, Y
+    return z, y
 
 # back propagation
 # for training
@@ -190,9 +190,9 @@ def show_figures(train_X, train_Z, test_X, test_predicted, err_array):
 
 if __name__ == "__main__":
     # set parameters
-    gauss_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 1.0, 10000, gauss, -2, -2, 2, 2, "gauss.csv")
-    sin4pi_params = Prameters(2 + 1, 9 + 1, 1, 0.1, 0.01, 0.1, 10000, sin4pi, 0, 0, 1, 1, "sincos.csv")
-    params = gauss_params
+    gauss_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 0.5, 10000, gauss, -2, -2, 2, 2, "gauss.csv")
+    sin4pi_params = Prameters(2 + 1, 19 + 1, 1, 0.1, 0.01, 1.5, 10000, sin4pi, -2, -2, 2, 2, "sincos.csv")
+    params = sin4pi_params
 
     # get args
     if len(sys.argv) >= 1:

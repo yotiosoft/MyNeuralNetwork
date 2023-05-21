@@ -36,7 +36,7 @@ def gauss(x1, x2):
 def sin4pi(x1, x2):
     # return [(1 + np.sin(4*np.pi*x1)) * x2 / 2]
     # return [(np.cos(2 * np.pi * x1)) / 2 + pow(x2, 3) / 2 + 2]
-    return [(np.sin(2 * np.pi * x1) + x2 + 1) / 3]
+    return [(x1 + np.cos(2 * np.pi * x2) + 1) / 3]
 
 # make sample data
 def make_sample_data(data_min_x1, data_min_x2, data_max_x1, data_max_x2, data_func, sample_n):
@@ -156,7 +156,7 @@ def output_csv(csv_filename, err_array):
 
 # show figures
 # using matplotlib
-def show_figures(train_X, train_Z, test_X, test_predicted):
+def show_figures(train_X, train_Z, test_X, test_predicted, err_array):
     plot_train_X1 = [x[1] for x in train_X]
     plot_train_X2 = [x[2] for x in train_X]
     plot_train_Z = [y for y in train_Z]
@@ -168,18 +168,31 @@ def show_figures(train_X, train_Z, test_X, test_predicted):
     fig1 = plt.figure()
     ax1 = fig1.add_subplot(projection='3d')
     ax1.scatter(plot_train_X1, plot_train_X2, plot_train_Z, color='blue')
+    ax1.set_xlabel('x1')
+    ax1.set_ylabel('x2')
+    ax1.set_zlabel('z')
 
     fig2 = plt.figure()
     ax2 = fig2.add_subplot(projection='3d')
     ax2.scatter(plot_test_X1, plot_test_X2, plot_test_predicted, color='green')
+    ax2.set_xlabel('x1')
+    ax2.set_ylabel('x2')
+    ax2.set_zlabel('z')
+
+    err_left = [i * 100 for i in range(len(err_array))]
+    fig3 = plt.figure()
+    ax3 = fig3.add_subplot()
+    ax3.plot(err_left, err_array, color='orange')
+    ax3.set_xlabel("epoch")
+    ax3.set_ylabel("error")
 
     plt.show()
 
 if __name__ == "__main__":
     # set parameters
     gauss_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 1.0, 10000, gauss, -2, -2, 2, 2, "gauss.csv")
-    sin4pi_params = Prameters(2 + 1, 14 + 1, 1, 0.1, 0.01, 0.1, 10000, sin4pi, 0, 0, 1, 1, "sincos.csv")
-    params = sin4pi_params
+    sin4pi_params = Prameters(2 + 1, 9 + 1, 1, 0.1, 0.01, 0.1, 10000, sin4pi, 0, 0, 1, 1, "sincos.csv")
+    params = gauss_params
 
     # get args
     if len(sys.argv) >= 1:
@@ -227,4 +240,4 @@ if __name__ == "__main__":
     output_csv(params.csv_filename, err_array)
 
     # show figures
-    show_figures(train_X, train_Z, test_X, test_predicted)
+    show_figures(train_X, train_Z, test_X, test_predicted, err_array)

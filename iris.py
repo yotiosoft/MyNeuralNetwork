@@ -157,7 +157,7 @@ def output_csv(csv_filename, err_array):
 
 # show figures
 # using matplotlib
-def show_figures(train_X, train_Z, test_X, test_predicted):
+def show_figures(train_X, train_Z, test_X, test_predicted, err_array):
     plot_train_X1 = [x[1] for x in train_X]
     plot_train_X2 = [x[2] for x in train_X]
     plot_train_Z = [y for y in train_Z]
@@ -169,17 +169,33 @@ def show_figures(train_X, train_Z, test_X, test_predicted):
     fig1 = plt.figure()
     ax1 = fig1.add_subplot(projection='3d')
     ax1.scatter(plot_train_X1, plot_train_X2, plot_train_Z, color='blue')
+    ax1.set_xlabel('x1')
+    ax1.set_ylabel('x2')
+    ax1.set_zlabel('z')
 
     fig2 = plt.figure()
     ax2 = fig2.add_subplot(projection='3d')
     ax2.scatter(plot_test_X1, plot_test_X2, plot_test_predicted, color='green')
+    ax2.set_xlabel('x1')
+    ax2.set_ylabel('x2')
+    ax2.set_zlabel('z')
+
+    show_error(err_array)
+
+def show_error(err_array):
+    err_left = [i * 100 for i in range(len(err_array))]
+    fig3 = plt.figure()
+    ax3 = fig3.add_subplot()
+    ax3.plot(err_left, err_array, color='orange')
+    ax3.set_xlabel("epoch")
+    ax3.set_ylabel("error")
 
     plt.show()
 
 if __name__ == "__main__":
     # set parameters
-    gauss_params = Prameters(2 + 1, 7 + 1, 1, 0.1, 0.2, 0.5, 10000, gauss, -2, -2, 2, 2, "gauss.csv")
-    sin4pi_params = Prameters(2 + 1, 14 + 1, 1, 0.1, 0.01, 1.0, 10000, sin4pi, 0, 0, 1, 1, "sin4pi.csv")
+    gauss_params = Prameters(2 + 1, 4 + 1, 1, 0.1, 0.2, 0.5, 10000, gauss, -2, -2, 2, 2, "gauss.csv")
+    sin4pi_params = Prameters(2 + 1, 19 + 1, 1, 0.1, 0.01, 1.0, 10000, sin4pi, -2, -2, 2, 2, "sincos.csv")
     iris_params = Prameters(4 + 1, 9 + 1, 3, 0.1, 0.5, 0.5, 10000, None, 0, 0, 1, 1, "iris.csv")
     params = iris_params
 
@@ -239,23 +255,42 @@ if __name__ == "__main__":
     # test
     test_err_total = 0
     test_predicted = []
+    l1_tp, l1_fp = 0, 0
+    l2_tp, l2_fp = 0, 0
+    l3_tp, l3_fp = 0, 0
     for n in range(len(test_X)):
         predict_result = predict(params.beta, w, v, test_X[n])
         test_predicted.append(copy.deepcopy(predict_result))
         test_err_total += abs(test_Z[n] - predict_result)
         if params == iris_params:
-            print("test " + str(n) + ": " + str(test_Z[n]) + " -> " + str(predict_result))
             answer = np.argmax(test_Z[n])
             predicted = np.argmax(predict_result)
             if answer == predicted:
-                print("correct")
+                if answer == 0:
+                    l1_tp += 1
+                elif answer == 1:
+                    l2_tp += 1
+                elif answer == 2:
+                    l3_tp += 1
             else:
-                print("incorrect")
+                if answer == 0:
+                    l1_fp += 1
+                elif answer == 1:
+                    l2_fp += 1
+                elif answer == 2:
+                    l3_fp += 1
     print("error rate: " + str(test_err_total))
-
-    # output to csv
-    output_csv(params.csv_filename, err_array)
+    if params == iris_params:
+        l1_precision = l1_tp / (l1_tp + l1_fp)
+        l2_precision = l2_tp / (l2_tp + l2_fp)
+        l3_precision = l3_tp / (l3_tp + l3_fp)
+        print("l1 precision: " + str(l1_precision))
+        print("l2 precision: " + str(l2_precision))
+        print("l3 precision: " + str(l3_precision))
+        print("average precision: " + str((l1_precision + l2_precision + l3_precision) / 3))
 
     # show figures
     if params == gauss_params or params == sin4pi_params:
-        show_figures(train_X, train_Z, test_X, test_predicted)
+        show_figures(train_X, train_Z, test_X, test_predicted, err_array)
+    elif params == iris_params:
+        show_error(err_array)

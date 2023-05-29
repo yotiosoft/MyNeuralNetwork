@@ -1,46 +1,66 @@
 import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA
 from sklearn.datasets import load_iris
 
 iris = load_iris()
-x = iris.data[:, :2]
+x1 = iris.data[:, :2]
+x2 = iris.data[:, 2:]
 y = iris.target
 
-x_min, x_max = x[:, 0].min() - 0.5, x[:, 0].max() + 0.5
-y_min, y_max = x[:, 1].min() - 0.5, x[:, 1].max() + 0.5
+fig, axs = plt.subplots(4, 4, figsize=(7, 7))
 
-plt.figure(2, figsize=(8, 6))
-plt.clf()
+# Line 1: Sepal length
+axs[0, 1].scatter(x1[:, 1], x1[:, 0], c=y, cmap=plt.cm.Set1, s=5)
+axs[0, 1].set_xlabel("Sepal width")
+axs[0, 1].set_ylabel("Sepal length")
 
-plt.scatter(x[:, 0], x[:, 1], c=y, cmap=plt.cm.Set1, edgecolor="k")
-plt.xlabel("Sepal length")
-plt.ylabel("Sepal width")
+axs[0, 2].scatter(x2[:, 0], x1[:, 0], c=y, cmap=plt.cm.Set1, s=5)
+axs[0, 2].set_xlabel("Petal length")
+axs[0, 2].set_ylabel("Sepal length")
 
-plt.xlim(x_min, x_max)
-plt.ylim(y_min, y_max)
-plt.xticks(())
-plt.yticks(())
+axs[0, 3].scatter(x2[:, 1], x1[:, 0], c=y, cmap=plt.cm.Set1, s=5)
+axs[0, 3].set_xlabel("Petal width")
+axs[0, 3].set_ylabel("Sepal length")
 
-fig = plt.figure(1, figsize=(8, 6))
-ax = fig.add_subplot(111, projection="3d", elev=-150, azim=110)
+# Line 2: Sepal width
+axs[1, 0].scatter(x1[:, 0], x1[:, 1], c=y, cmap=plt.cm.Set1, s=5)
+axs[1, 0].set_xlabel("Sepal length")
+axs[1, 0].set_ylabel("Sepal width")
 
-X_reduced = PCA(n_components=3).fit_transform(iris.data)
-ax.scatter(
-    X_reduced[:, 0],
-    X_reduced[:, 1],
-    X_reduced[:, 2],
-    c=y,
-    cmap=plt.cm.Set1,
-    edgecolor="k",
-    s=40,
-)
+axs[1, 2].scatter(x2[:, 0], x1[:, 1], c=y, cmap=plt.cm.Set1, s=5)
+axs[1, 2].set_title("Sepal width x Petal length")
+axs[1, 2].set_xlabel("Petal length")
+axs[1, 2].set_ylabel("Sepal width")
 
-ax.set_title("First three PCA directions")
-ax.set_xlabel("1st eigenvector")
-ax.xaxis.set_ticklabels([])
-ax.set_ylabel("2nd eigenvector")
-ax.yaxis.set_ticklabels([])
-ax.set_zlabel("3rd eigenvector")
-ax.zaxis.set_ticklabels([])
+axs[1, 3].scatter(x2[:, 1], x1[:, 1], c=y, cmap=plt.cm.Set1, s=5)
+axs[1, 3].set_xlabel("Petal width")
+axs[1, 3].set_ylabel("Sepal width")
+
+# Line 3: Petal length
+axs[2, 0].scatter(x1[:, 0], x2[:, 0], c=y, cmap=plt.cm.Set1, s=5)
+axs[2, 0].set_xlabel("Sepal length")
+axs[2, 0].set_ylabel("Petal length")
+
+axs[2, 1].scatter(x1[:, 1], x2[:, 0], c=y, cmap=plt.cm.Set1, s=5)
+axs[2, 1].set_xlabel("Sepal width")
+axs[2, 1].set_ylabel("Petal length")
+
+axs[2, 3].scatter(x2[:, 1], x2[:, 0], c=y, cmap=plt.cm.Set1, s=5)
+axs[2, 3].set_xlabel("Petal width")
+axs[2, 3].set_ylabel("Petal length")
+
+# Line 4: Petal width
+axs[3, 0].scatter(x1[:, 0], x2[:, 1], c=y, cmap=plt.cm.Set1, s=5)
+axs[3, 0].set_xlabel("Sepal length")
+axs[3, 0].set_ylabel("Petal width")
+
+axs[3, 1].scatter(x1[:, 1], x2[:, 1], c=y, cmap=plt.cm.Set1, s=5)
+axs[3, 1].set_xlabel("Sepal width")
+axs[3, 1].set_ylabel("Petal width")
+
+axs[3, 2].scatter(x2[:, 0], x2[:, 1], c=y, cmap=plt.cm.Set1, s=5)
+axs[3, 2].set_xlabel("Petal length")
+axs[3, 2].set_ylabel("Petal width")
+
+fig.tight_layout()
 
 plt.show()

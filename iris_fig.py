@@ -6,6 +6,8 @@ iris = load_iris()
 x1 = iris.data[:, :2]
 x2 = iris.data[:, 2:]
 y = iris.target
+color = ["r", "b", "g"]
+y_color = [color[0] if i == 0 else color[1] if i == 1 else color[2] for i in y]
 labels = iris.target_names
 
 fig, axs = plt.subplots(4, 4, figsize=(7, 7))
@@ -15,7 +17,8 @@ fig.subplots_adjust(wspace=0.6, hspace=0.6)
 axs[0, 0].text(0.5, 0.5, "Sepal length", horizontalalignment="center", verticalalignment="center", transform=axs[0, 0].transAxes)
 axs[0, 0].axis("off")
 
-axs[0, 1].scatter(x1[:, 1], x1[:, 0], c=y, cmap=plt.cm.Set1, s=5)
+# x1[:,1]のうち、0のデータを取り出す
+sc = axs[0, 1].scatter(x1[:, 1], x1[:, 0], c=y_color, cmap=plt.cm.Set1, s=5)
 axs[0, 1].set_xlabel("Sepal width")
 axs[0, 1].set_ylabel("Sepal length")
 axs[0, 1].yaxis.set_major_locator(ticker.MultipleLocator(2))
@@ -87,6 +90,18 @@ axs[3, 2].yaxis.set_major_locator(ticker.MultipleLocator(2))
 axs[3, 3].text(0.5, 0.5, "Petal width", horizontalalignment="center", verticalalignment="center", transform=axs[3, 3].transAxes)
 axs[3, 3].axis("off")
 
-axs[0, 3].legend(["setosa", "versicolor", "virginica"], loc="upper left", bbox_to_anchor=(1.05, 1.0), borderaxespad=0)
+leg = fig.legend(*sc.legend_elements(),
+        labels=labels,
+        loc='upper center',
+        ncol=3,
+        bbox_to_anchor=(0.81, 0.40),
+        bbox_transform=axs[0, 1].transAxes
+        )
 
+num = 0
+for leha in leg.legendHandles:
+    leha.set_color(color[num])
+    num += 1
+
+plt.tight_layout()
 plt.show()

@@ -24,7 +24,7 @@ class Prameters:
         self.data_max_x2 = data_max_x2
         self.csv_filename = csv_filename
 
-# nonlinear functions
+# normal distribution
 mu = np.matrix([0, 0])
 sig = np.matrix([[1,0.01],[0.01,1]])
 def gauss(x1, x2):
@@ -33,9 +33,8 @@ def gauss(x1, x2):
     b = np.linalg.det(-0.5*(datx-mu)*sig.I*(datx-mu).T)
     return [np.exp(b)/a]
 
+# z(x1, x2)
 def sin4pi(x1, x2):
-    # return [(1 + np.sin(4*np.pi*x1)) * x2 / 2]
-    # return [(np.cos(2 * np.pi * x1)) / 2 + pow(x2, 3) / 2 + 2]
     return [(np.sin(x1 * np.pi) + 1) / 5 + (x2 + 2) / 10]
 
 # make sample data
@@ -121,10 +120,10 @@ def back_propagate(beta, eta, train_x, train_t, w, v):
 
 # train
 # call back_propagate() for train_times
-def train(train_times, beta, eta, w, v, train_X, train_Z):
+def train(train_times, beta, eta, w, v, train_x, train_z):
     err_total_array = []
     for i in range(train_times):
-        err_total = back_propagate(beta, eta, train_X, train_Z, w, v)
+        err_total = back_propagate(beta, eta, train_x, train_z, w, v)
         if i % 100 == 0:
             print("Epoch " + str(i))
             print("v = " + str(v))
@@ -139,42 +138,27 @@ def predict(beta, w, v, x):
     z, _ = forward_computation(beta, w, v, x)
     return z
 
-# output to csv file
-def output_csv(csv_filename, err_array):
-    rows = []
-    if os.path.exists(csv_filename):
-        with open(csv_filename, 'r') as f:
-            reader = csv.reader(f)
-            for row in reader:
-                if len(row) > 0:
-                    rows.append(row)
-        rows = list(zip(*rows))
-    rows.append(err_array)
-    with open(csv_filename, 'w') as f:
-        writer = csv.writer(f)
-        writer.writerows(list(zip(*rows)))
-
 # show figures
 # using matplotlib
-def show_figures(train_X, train_Z, test_X, test_predicted, err_array):
-    plot_train_X1 = [x[1] for x in train_X]
-    plot_train_X2 = [x[2] for x in train_X]
-    plot_train_Z = [y for y in train_Z]
+def show_figures(train_x, train_z, test_x, test_predicted, err_array):
+    plot_train_x1 = [x[1] for x in train_x]
+    plot_train_x2 = [x[2] for x in train_x]
+    plot_train_z = [y for y in train_z]
 
-    plot_test_X1 = [x[1] for x in test_X]
-    plot_test_X2 = [x[2] for x in test_X]
+    plot_test_x1 = [x[1] for x in test_x]
+    plot_test_x2 = [x[2] for x in test_x]
     plot_test_predicted = [p[0] for p in test_predicted]
 
     fig1 = plt.figure()
     ax1 = fig1.add_subplot(projection='3d')
-    ax1.scatter(plot_train_X1, plot_train_X2, plot_train_Z, color='blue')
+    ax1.scatter(plot_train_x1, plot_train_x2, plot_train_z, color='blue')
     ax1.set_xlabel('x1')
     ax1.set_ylabel('x2')
     ax1.set_zlabel('z')
 
     fig2 = plt.figure()
     ax2 = fig2.add_subplot(projection='3d')
-    ax2.scatter(plot_test_X1, plot_test_X2, plot_test_predicted, color='green')
+    ax2.scatter(plot_test_x1, plot_test_x2, plot_test_predicted, color='green')
     ax2.set_xlabel('x1')
     ax2.set_ylabel('x2')
     ax2.set_zlabel('z')
@@ -217,27 +201,24 @@ if __name__ == "__main__":
     w, v = init_weights(params.init_weight_range, params.input_size, params.hidden_size, params.output_size)
 
     # make sample data
-    samples_X, samples_Z = make_sample_data(params.data_min_x1, params.data_min_x2, params.data_max_x1, params.data_max_x2, params.data_func, 2000)
-    train_X = [[1, x[0], x[1]] for x in samples_X[:1000]]
-    train_Z = samples_Z[:1000]
-    test_X = [[1, x[0], x[1]] for x in samples_X[1000:]]
-    test_Z = samples_Z[1000:]
+    samples_x, samples_z = make_sample_data(params.data_min_x1, params.data_min_x2, params.data_max_x1, params.data_max_x2, params.data_func, 2000)
+    train_x = [[1, x[0], x[1]] for x in samples_x[:1000]]
+    train_z = samples_z[:1000]
+    test_x = [[1, x[0], x[1]] for x in samples_x[1000:]]
+    test_z = samples_z[1000:]
 
     # train
-    err_array = train(params.train_times, params.beta, params.eta, w, v, train_X, train_Z)
+    err_array = train(params.train_times, params.beta, params.eta, w, v, train_x, train_z)
     print("train done.")
 
     # test
     test_err_total = 0
     test_predicted = []
-    for n in range(len(test_X)):
-        predict_result = predict(params.beta, w, v, test_X[n])
+    for n in range(len(test_x)):
+        predict_result = predict(params.beta, w, v, test_x[n])
         test_predicted.append(copy.deepcopy(predict_result))
-        test_err_total += abs(test_Z[n] - predict_result)
+        test_err_total += abs(test_z[n] - predict_result)
     print("error rate: " + str(test_err_total))
 
-    # output to csv
-    output_csv(params.csv_filename, err_array)
-
     # show figures
-    show_figures(train_X, train_Z, test_X, test_predicted, err_array)
+    show_figures(train_x, train_z, test_x, test_predicted, err_array)

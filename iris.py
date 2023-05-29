@@ -122,10 +122,10 @@ def back_propagate(beta, eta, train_x, train_t, w, v):
 
 # train
 # call back_propagate() for train_times
-def train(train_times, beta, eta, w, v, train_X, train_Z):
+def train(train_times, beta, eta, w, v, train_x, train_z):
     err_array = []
     for i in range(train_times):
-        err_total = back_propagate(beta, eta, train_X, train_Z, w, v)
+        err_total = back_propagate(beta, eta, train_x, train_z, w, v)
         if i % 100 == 0:
             print("Epoch " + str(i))
             print("v = " + str(v))
@@ -157,25 +157,25 @@ def output_csv(csv_filename, err_array):
 
 # show figures
 # using matplotlib
-def show_figures(train_X, train_Z, test_X, test_predicted, err_array):
-    plot_train_X1 = [x[1] for x in train_X]
-    plot_train_X2 = [x[2] for x in train_X]
-    plot_train_Z = [y for y in train_Z]
+def show_figures(train_x, train_z, test_x, test_predicted, err_array):
+    plot_train_x1 = [x[1] for x in train_x]
+    plot_train_x2 = [x[2] for x in train_x]
+    plot_train_z = [y for y in train_z]
 
-    plot_test_X1 = [x[1] for x in test_X]
-    plot_test_X2 = [x[2] for x in test_X]
+    plot_test_x1 = [x[1] for x in test_x]
+    plot_test_x2 = [x[2] for x in test_x]
     plot_test_predicted = [p[0] for p in test_predicted]
 
     fig1 = plt.figure()
     ax1 = fig1.add_subplot(projection='3d')
-    ax1.scatter(plot_train_X1, plot_train_X2, plot_train_Z, color='blue')
+    ax1.scatter(plot_train_x1, plot_train_x2, plot_train_z, color='blue')
     ax1.set_xlabel('x1')
     ax1.set_ylabel('x2')
     ax1.set_zlabel('z')
 
     fig2 = plt.figure()
     ax2 = fig2.add_subplot(projection='3d')
-    ax2.scatter(plot_test_X1, plot_test_X2, plot_test_predicted, color='green')
+    ax2.scatter(plot_test_x1, plot_test_x2, plot_test_predicted, color='green')
     ax2.set_xlabel('x1')
     ax2.set_ylabel('x2')
     ax2.set_zlabel('z')
@@ -225,31 +225,31 @@ if __name__ == "__main__":
 
     # make sample data
     if params == gauss_params or params == sin4pi_params:
-        samples_X, samples_Z = make_sample_data(params.data_min_x1, params.data_min_x2, params.data_max_x1, params.data_max_x2, params.data_func, 2000)
-        train_X = [[1, x[0], x[1]] for x in samples_X[:1000]]
-        train_Z = samples_Z[:1000]
-        test_X = [[1, x[0], x[1]] for x in samples_X[1000:]]
-        test_Z = samples_Z[1000:]
+        samples_x, samples_z = make_sample_data(params.data_min_x1, params.data_min_x2, params.data_max_x1, params.data_max_x2, params.data_func, 2000)
+        train_x = [[1, x[0], x[1]] for x in samples_x[:1000]]
+        train_z = samples_z[:1000]
+        test_x = [[1, x[0], x[1]] for x in samples_x[1000:]]
+        test_z = samples_z[1000:]
     elif params == iris_params:
-        samples_X, samples_T = iris.data, iris.target
-        samples = list(zip(samples_X, samples_T))
+        samples_x, samples_T = iris.data, iris.target
+        samples = list(zip(samples_x, samples_T))
         random.shuffle(samples)
-        samples_X, samples_T = zip(*samples)
-        samples_Z = []
+        samples_x, samples_T = zip(*samples)
+        samples_z = []
         for t in samples_T:
             if t == 0:
-                samples_Z.append([1, 0, 0])
+                samples_z.append([1, 0, 0])
             elif t == 1:
-                samples_Z.append([0, 1, 0])
+                samples_z.append([0, 1, 0])
             elif t == 2:
-                samples_Z.append([0, 0, 1])
-        train_X = [[1, x[0], x[1], x[2], x[3]] for x in samples_X[:75]]
-        train_Z = [[z[0], z[1], z[2]] for z in samples_Z[:75]]
-        test_X = [[1, x[0], x[1], x[2], x[3]] for x in samples_X[75:]]
-        test_Z = [[z[0], z[1], z[2]] for z in samples_Z[75:]]
+                samples_z.append([0, 0, 1])
+        train_x = [[1, x[0], x[1], x[2], x[3]] for x in samples_x[:75]]
+        train_z = [[z[0], z[1], z[2]] for z in samples_z[:75]]
+        test_x = [[1, x[0], x[1], x[2], x[3]] for x in samples_x[75:]]
+        test_z = [[z[0], z[1], z[2]] for z in samples_z[75:]]
 
     # train
-    err_array = train(params.train_times, params.beta, params.eta, w, v, train_X, train_Z)
+    err_array = train(params.train_times, params.beta, params.eta, w, v, train_x, train_z)
     print("train done.")
 
     # test
@@ -258,12 +258,12 @@ if __name__ == "__main__":
     l1_tp, l1_fp = 0, 0
     l2_tp, l2_fp = 0, 0
     l3_tp, l3_fp = 0, 0
-    for n in range(len(test_X)):
-        predict_result = predict(params.beta, w, v, test_X[n])
+    for n in range(len(test_x)):
+        predict_result = predict(params.beta, w, v, test_x[n])
         test_predicted.append(copy.deepcopy(predict_result))
-        test_err_total += abs(test_Z[n] - predict_result)
+        test_err_total += abs(test_z[n] - predict_result)
         if params == iris_params:
-            answer = np.argmax(test_Z[n])
+            answer = np.argmax(test_z[n])
             predicted = np.argmax(predict_result)
             if answer == predicted:
                 if answer == 0:
@@ -291,6 +291,6 @@ if __name__ == "__main__":
 
     # show figures
     if params == gauss_params or params == sin4pi_params:
-        show_figures(train_X, train_Z, test_X, test_predicted, err_array)
+        show_figures(train_x, train_z, test_x, test_predicted, err_array)
     elif params == iris_params:
         show_error(err_array)

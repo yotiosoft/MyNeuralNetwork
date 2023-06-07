@@ -23,7 +23,7 @@ class Prameters:
         self.data_max_x1 = data_max_x1
         self.data_max_x2 = data_max_x2
 
-# nonlinear functions
+# normal distribution
 mu = np.matrix([0, 0])
 sig = np.matrix([[1,0.01],[0.01,1]])
 def gauss(x1, x2):
@@ -32,9 +32,8 @@ def gauss(x1, x2):
     b = np.linalg.det(-0.5*(datx-mu)*sig.I*(datx-mu).T)
     return [np.exp(b)/a]
 
+# z(x1, x2)
 def sin4pi(x1, x2):
-    # return [(1 + np.sin(4*np.pi*x1)) * x2 / 2]
-    # return [(np.cos(2 * np.pi * x1)) / 2 + pow(x2, 3) / 2 + 2]
     return [(np.sin(x1 * np.pi) + 1) / 5 + (x2 + 2) / 10]
 
 # make sample data
